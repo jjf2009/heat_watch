@@ -21,7 +21,7 @@ function inSphere(count: number, radius: number): Float32Array {
 }
 
 function ParticleBackground() {
-  const ref = useRef<any>();
+  const ref = useRef<any>(null);
   const sphere = useMemo(() => inSphere(1000, 1.2), []);
 
   useFrame((_, delta) => {
