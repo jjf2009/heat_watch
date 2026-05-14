@@ -56,3 +56,142 @@ body {
 #report-content > *:nth-child(4) { animation-delay: 0.2s; }
 #report-content > *:nth-child(5) { animation-delay: 0.25s; }
 #report-content > *:nth-child(6) { animation-delay: 0.3s; }
+
+/* ============================================================
+   NEUMORPHISM — Dark Navy Theme (#1A1A2E base)
+   Light shadow  → rgba(45,45,90,0.7)  (top-left)
+   Dark shadow   → rgba(0,0,10,0.85)   (bottom-right)
+   ============================================================ */
+
+.nm-card {
+  background: #1E1E38;
+  box-shadow:
+    -7px -7px 18px rgba(45, 45, 90, 0.65),
+     7px  7px 18px rgba(0, 0, 10, 0.85);
+  border-radius: 1.5rem;
+  border: 1px solid rgba(249, 115, 22, 0.08);
+}
+
+.nm-card-sm {
+  background: #1E1E38;
+  box-shadow:
+    -4px -4px 10px rgba(45, 45, 90, 0.55),
+     4px  4px 10px rgba(0, 0, 10, 0.75);
+  border-radius: 1rem;
+  border: 1px solid rgba(249, 115, 22, 0.06);
+}
+
+.nm-inset {
+  background: #14142A;
+  box-shadow:
+    inset -3px -3px 8px rgba(45, 45, 90, 0.5),
+    inset  3px  3px 8px rgba(0, 0, 10, 0.75);
+  border-radius: 1rem;
+}
+
+.nm-inset-sm {
+  background: #13132A;
+  box-shadow:
+    inset -2px -2px 6px rgba(45, 45, 90, 0.45),
+    inset  2px  2px 6px rgba(0, 0, 10, 0.65);
+  border-radius: 0.75rem;
+}
+
+/* Orange CTA button */
+.nm-btn-orange {
+  background: linear-gradient(145deg, #fa8f32, #e06010);
+  box-shadow:
+    -3px -3px 8px rgba(45, 45, 90, 0.45),
+     3px  3px 8px rgba(0, 0, 10, 0.6),
+    inset 0 1px 0 rgba(255, 255, 255, 0.18);
+  transition: box-shadow 0.2s ease, transform 0.15s ease;
+}
+.nm-btn-orange:hover:not(:disabled) {
+  box-shadow:
+    -4px -4px 12px rgba(45, 45, 90, 0.55),
+     4px  4px 12px rgba(0, 0, 10, 0.7),
+    inset 0 1px 0 rgba(255, 255, 255, 0.18);
+  transform: translateY(-1px);
+}
+.nm-btn-orange:active:not(:disabled) {
+  box-shadow:
+    inset -2px -2px 6px rgba(45, 45, 90, 0.35),
+    inset  2px  2px 6px rgba(0, 0, 10, 0.55);
+  transform: translateY(0);
+}
+
+/* White CTA button */
+.nm-btn-white {
+  background: linear-gradient(145deg, #ffffff, #dde0e8);
+  box-shadow:
+    -3px -3px 8px rgba(45, 45, 90, 0.35),
+     3px  3px 8px rgba(0, 0, 10, 0.55);
+  transition: box-shadow 0.2s ease, transform 0.15s ease;
+}
+.nm-btn-white:hover:not(:disabled) {
+  box-shadow:
+    -4px -4px 12px rgba(45, 45, 90, 0.45),
+     4px  4px 12px rgba(0, 0, 10, 0.65);
+  transform: translateY(-1px);
+}
+.nm-btn-white:active {
+  box-shadow:
+    inset -2px -2px 5px rgba(200, 200, 215, 0.5),
+    inset  2px  2px 5px rgba(0, 0, 10, 0.3);
+  transform: translateY(0);
+}
+
+/* Text / ghost button */
+.nm-btn-ghost {
+  background: transparent;
+  transition: color 0.2s ease;
+}
+
+/* Input fields */
+.nm-input {
+  background: #13132A;
+  box-shadow:
+    inset -3px -3px 7px rgba(45, 45, 90, 0.45),
+    inset  3px  3px 7px rgba(0, 0, 10, 0.7);
+  border: 1px solid rgba(249, 115, 22, 0.12);
+  border-radius: 0.75rem;
+  color: white;
+  transition: box-shadow 0.2s ease, border-color 0.2s ease;
+}
+.nm-input::placeholder { color: rgba(150, 150, 180, 0.55); }
+.nm-input:focus {
+  outline: none;
+  border-color: rgba(249, 115, 22, 0.5);
+  box-shadow:
+    inset -3px -3px 7px rgba(45, 45, 90, 0.45),
+    inset  3px  3px 7px rgba(0, 0, 10, 0.7),
+    0 0 0 2px rgba(249, 115, 22, 0.25);
+}
+
+/* Navbar */
+.nm-nav {
+  background: rgba(20, 20, 40, 0.88);
+  box-shadow:
+    0 6px 24px rgba(0, 0, 10, 0.7),
+    inset 0 -1px 0 rgba(45, 45, 90, 0.35);
+  backdrop-filter: blur(20px);
+}
+
+/* Dropdown */
+.nm-dropdown {
+  background: #1E1E38;
+  box-shadow:
+    -5px -5px 14px rgba(45, 45, 90, 0.5),
+     5px  5px 14px rgba(0, 0, 10, 0.8);
+  border: 1px solid rgba(249, 115, 22, 0.15);
+  border-radius: 0.75rem;
+}
+
+/* Progress bar track (inset) */
+.nm-track {
+  background: #12122A;
+  box-shadow:
+    inset -2px -2px 5px rgba(45, 45, 90, 0.35),
+    inset  2px  2px 5px rgba(0, 0, 10, 0.6);
+  border-radius: 9999px;
+}
