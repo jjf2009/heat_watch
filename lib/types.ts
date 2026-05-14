@@ -47,12 +47,58 @@ export type HeatZone = {
   intensity: number;        // 0-1 for leaflet heatmap
 };
 
+export type Recommendation = {
+  priority: string;
+  action: string;
+  detail: string;
+  impact: string;
+  icon: string;
+};
+
+export type SimResult = {
+  totalCooling: number;
+  projectedUHI: number;
+  breakdown: {
+    treeCooling: number;
+    reflectiveCooling: number;
+    waterCooling: number;
+    greenRoofCooling: number;
+  };
+  costEstimate: {
+    trees: number;
+    reflective: number;
+    water: number;
+    greenRoofs: number;
+  };
+};
+
+export type UHIEngineData = {
+  urbanTemp: number;
+  ruralBaseline: number;
+  ruralTemps: { direction: string; temp: number; lat: number; lng: number }[];
+  uhiIntensity: number;
+  adjustedUHI: number;
+  nasa: { lst: number; ndvi_proxy: number; longTermAvg: number; lstDelta: number };
+  riskScore: number;
+  riskLevel: string;
+  mlScore: MLScore;
+  historical: { date: string; temp: number }[];
+  regression: { slope: number; r2: number; trend: string };
+  forecast: { date: string; temp: number; uhiDelta: number }[];
+  hourlyPattern: { time: string; temp: number; uhiDelta: number }[];
+  peakHour: { time: string; temp: number; uhiDelta: number };
+  interventionResult: SimResult | null;
+  recommendations: Recommendation[];
+  fetchedAt: string;
+};
+
 export type AppData = {
   location: LocationData;
   weather: WeatherData;
   historical: HistoricalPoint[];
   forecast: ForecastPoint[];
-  mlScore: MLScore;
+  mlScore: MLScore | null;
   heatZones: HeatZone[];
   fetchedAt: string;
+  uhiEngine?: UHIEngineData | null;
 };

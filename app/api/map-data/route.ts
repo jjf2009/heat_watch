@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { generateGeoJSON } from "@/lib/heatZones";
 
 const corsHeaders = {
   "Content-Type": "application/json",
@@ -16,29 +17,7 @@ export async function GET(request: Request) {
   const lat = parseFloat(searchParams.get("lat") || "15.49");
   const lng = parseFloat(searchParams.get("lng") || "73.82");
 
-  // Generate some mock GeoJSON data for the heat map
-  const mockGeoJson = {
-    type: "FeatureCollection",
-    features: Array.from({ length: 5 }).map((_, i) => ({
-      type: "Feature",
-      geometry: {
-        type: "Polygon",
-        coordinates: [
-          [
-            [lng + Math.random() * 0.1, lat + Math.random() * 0.1],
-            [lng + Math.random() * 0.1, lat - Math.random() * 0.1],
-            [lng - Math.random() * 0.1, lat - Math.random() * 0.1],
-            [lng - Math.random() * 0.1, lat + Math.random() * 0.1],
-            [lng + Math.random() * 0.1, lat + Math.random() * 0.1],
-          ],
-        ],
-      },
-      properties: {
-        intensity: Math.random() * 10,
-        temperature: 25 + Math.random() * 15,
-      },
-    })),
-  };
+  const mockGeoJson = generateGeoJSON(lat, lng);
 
   return NextResponse.json(mockGeoJson, { headers: corsHeaders });
 }

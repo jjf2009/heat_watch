@@ -111,7 +111,7 @@ export default function InterventionSimulator({ currentUHI, lat, lng, city }: Pr
     <div className="bg-white rounded-2xl shadow p-6">
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h3 className="font-bold text-lg">🧪 Intervention Simulator</h3>
+          <h3 className="font-bold text-lg text-black">🧪 Intervention Simulator</h3>
           <p className="text-sm text-gray-500 mt-0.5">
             Model policy decisions before committing budget — adjust sliders to see projected UHI reduction
           </p>
