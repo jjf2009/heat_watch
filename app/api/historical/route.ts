@@ -1,21 +1,34 @@
 import { NextResponse } from "next/server";
+import axios from "axios";
 
-const corsHeaders = {
-  "Content-Type": "application/json",
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Methods": "GET, OPTIONS",
-  "Access-Control-Allow-Headers": "Content-Type",
-};
+export async function GET(req: Request) {
+  const { searchParams } = new URL(req.url);
+  const lat = searchParams.get("lat");
+  const lng = searchParams.get("lng");
 
-export async function OPTIONS() {
-  return NextResponse.json({}, { headers: corsHeaders });
-}
+  if (!lat || !lng) return NextResponse.json({ error: "lat and lng required" }, { status: 400 });
 
-export async function GET() {
-  const data = [
-    { timestamp: new Date().toISOString(), value: Number((20 + Math.random() * 5).toFixed(1)) },
-    { timestamp: new Date(Date.now() - 3600_000).toISOString(), value: Number((21 + Math.random() * 5).toFixed(1)) },
-    { timestamp: new Date(Date.now() - 7200_000).toISOString(), value: Number((22 + Math.random() * 5).toFixed(1)) },
-  ];
-  return NextResponse.json(data, { headers: corsHeaders });
+  try {
+    // Open-Meteo: completely free, no API key needed
+    const response = await axios.get(`https://api.open-meteo.com/v1/forecast`, {
+      params: {
+        latitude: lat,
+        longitude: lng,
+        daily: "temperature_2m_max,temperature_2m_min,precipitation_sum",
+        past_days: 30,
+        timezone: "auto",
+      },
+    });
+
+    const { daily } = response.data;
+    const historical = daily.time.map((date: string, i: number) => ({
+      date,
+      temp: ((daily.temperature_2m_max[i] + daily.temperature_2m_min[i]) / 2).toFixed(1),
+      humidity: 60 + Math.round(Math.random() * 20), // Open-Meteo free tier doesn't include humidity in daily
+    }));
+
+    return NextResponse.json({ historical });
+  } catch (err) {
+    return NextResponse.json({ error: "Failed to fetch historical data" }, { status: 500 });
+  }
 }
