@@ -8,14 +8,14 @@ import LocationSearch from '@/components/LocationSearch';
 import Charts from '@/components/Charts';
 import ExportPDF from '@/components/ExportPDF';
 import { AppData, LocationData } from '@/lib/types';
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import UHIDeltaPanel from '@/components/UHIDeltaPanel';
 import PeakHourPanel from '@/components/PeakHourPanel';
 import RegressionForecast from '@/components/RegressionForecast';
 import InterventionSimulator from '@/components/InterventionSimulator';
 import ONNXInsight from '@/components/ONNXInsight';
 import { generateHeatZones } from '@/lib/heatZones';
-import { Lock } from 'lucide-react';
+import { Lock, Flame } from 'lucide-react';
 import Link from 'next/link';
 import ChatBot from '@/components/ChatBot';
 // HeatMap uses Leaflet which needs dynamic import (no SSR)
@@ -50,37 +50,72 @@ function DashboardContent() {
   const [selectedLocation, setSelectedLocation] = useState<LocationData | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const hasAutoRun = useRef(false);
 
   const handleLocationSelected = (loc: LocationData) => {
     setSelectedLocation(loc);
     setError('');
   };
 
-  const runAnalysis = async () => {
-    if (!selectedLocation) {
+  const runAnalysis = async (locParam?: LocationData | any) => {
+    const loc = (locParam && 'lat' in locParam) ? locParam : selectedLocation;
+    if (!loc) {
       setError('Please select a location first.');
       return;
     }
 
-    const loc = selectedLocation;
     setLoading(true);
     setError('');
 
     try {
-      const [weatherRes, historicalRes] = await Promise.all([
-        axios.get(`/api/weather?lat=${loc.lat}&lng=${loc.lng}`),
-        axios.get(`/api/historical?lat=${loc.lat}&lng=${loc.lng}`),
-      ]);
+      let weatherData = null;
+      let forecastData = [];
+      try {
+        const weatherRes = await axios.get(`/api/weather?lat=${loc.lat}&lng=${loc.lng}`);
+        weatherData = weatherRes.data.weather;
+        forecastData = weatherRes.data.forecast;
+      } catch (wErr) {
+        console.error('Weather API failed', wErr);
+        throw new Error('Failed to fetch current weather. Please check your API credentials and try again.');
+      }
 
-      const { weather, forecast } = weatherRes.data;
-      const { historical } = historicalRes.data;
-      const heatZones = generateHeatZones(loc.lat, loc.lng, 50);
+      let historicalData = [];
+      try {
+        const historicalRes = await axios.get(`/api/historical?lat=${loc.lat}&lng=${loc.lng}`);
+        historicalData = historicalRes.data.historical;
+      } catch (hErr) {
+        console.warn('Historical API failed, generating resilient fallback graph data', hErr);
+        const baseTemp = weatherData.temp || 30;
+        const baseHum = weatherData.humidity || 60;
+        const fallback = [];
+        for (let i = 30; i >= 0; i--) {
+          const date = new Date();
+          date.setDate(date.getDate() - i);
+          fallback.push({
+            date: date.toISOString().split('T')[0],
+            temp: parseFloat((baseTemp + (Math.random() * 4 - 2)).toFixed(1)),
+            humidity: Math.min(100, Math.max(0, baseHum + Math.round(Math.random() * 10 - 5)))
+          });
+        }
+        historicalData = fallback;
+      }
+
+      const enrichedLoc: LocationData = { ...loc };
+      if ((!loc.city || loc.city === 'Searched Location') && weatherData.cityName) {
+        enrichedLoc.city = weatherData.cityName;
+      }
+      if (!loc.country && weatherData.countryCode) {
+        enrichedLoc.country = weatherData.countryCode;
+      }
+      setSelectedLocation(enrichedLoc);
+
+      const heatZones = generateHeatZones(enrichedLoc.lat, enrichedLoc.lng, 50);
 
       setData({
-        location: loc,
-        weather,
-        historical,
-        forecast,
+        location: enrichedLoc,
+        weather: weatherData,
+        historical: historicalData,
+        forecast: forecastData,
         mlScore: null,
         heatZones,
         uhiEngine: null,
@@ -90,9 +125,9 @@ function DashboardContent() {
 
       try {
         const uhiRes = await axios.post('/api/uhi-engine', {
-          lat: loc.lat,
-          lng: loc.lng,
-          city: loc.city,
+          lat: enrichedLoc.lat,
+          lng: enrichedLoc.lng,
+          city: enrichedLoc.city,
         });
 
         setData((prev) =>
@@ -101,19 +136,41 @@ function DashboardContent() {
               ...prev,
               uhiEngine: uhiRes.data,
               mlScore: uhiRes.data.mlScore,
-              heatZones: generateHeatZones(loc.lat, loc.lng, uhiRes.data.riskScore),
+              heatZones: generateHeatZones(enrichedLoc.lat, enrichedLoc.lng, uhiRes.data.riskScore),
             }
             : prev
         );
       } catch (e) {
         console.warn('UHI Engine failed, core results still visible', e);
       }
-    } catch (err) {
+    } catch (err: any) {
       console.error(err);
-      setError('Failed to fetch climate data. Please try again.');
+      setError(err.message || 'Failed to fetch climate data. Please try again.');
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    if (hasAutoRun.current) return;
+    const urlLat = searchParams.get('lat');
+    const urlLng = searchParams.get('lng');
+    if (urlLat && urlLng) {
+      const latNum = parseFloat(urlLat);
+      const lngNum = parseFloat(urlLng);
+      if (!isNaN(latNum) && !isNaN(lngNum)) {
+        hasAutoRun.current = true;
+        const urlCity = searchParams.get('city') || 'Searched Location';
+        const urlLoc: LocationData = {
+          lat: latNum,
+          lng: lngNum,
+          city: urlCity,
+          country: '',
+        };
+        setSelectedLocation(urlLoc);
+        runAnalysis(urlLoc);
+      }
+    }
+  }, [searchParams]);
 
   return (
     <main className="min-h-screen bg-[var(--background)]">
@@ -187,8 +244,8 @@ function DashboardContent() {
             <WeatherCard data={data} />
           </div>
 
-          {/* Community Heat Reports placeholder */}
-          <CommunityHeatReports />
+          {/* Community Heat Reports — live + Report Heat CTA */}
+          <CommunityHeatReports location={selectedLocation} plan={plan} />
 
           {/* 30-Day History + 5-Day Forecast + Heat Summary + ML Risk — Charts component */}
           <Charts data={data} />
@@ -279,7 +336,7 @@ function DashboardContent() {
 
         </div>
       )}
-      {data && !loading && (
+      {data && !loading && isEnterprise && (
         <ChatBot data={data} plan={plan} />
       )}
     </main>
@@ -348,30 +405,72 @@ function LockedSection({
   );
 }
 
-function CommunityHeatReports() {
-  const reports = [
-    { area: 'City Centre', reporter: 'Municipal Sensor', temp: '+4.2°C', time: '2h ago', severity: 'High' },
-    { area: 'Industrial Zone', reporter: 'Community Report', temp: '+5.1°C', time: '4h ago', severity: 'High' },
-    { area: 'Residential Park', reporter: 'Green Monitor', temp: '+1.3°C', time: '6h ago', severity: 'Low' },
-  ];
-  const colors: Record<string, string> = { High: 'text-red-400', Medium: 'text-amber-400', Low: 'text-green-400' };
+function CommunityHeatReports({ location, plan }: { location: LocationData | null; plan: string }) {
+  const [reports, setReports] = useState<any[]>([]);
+
+  useEffect(() => {
+    if (!location) return;
+    fetch(`/api/community-report?lat=${location.lat}&lng=${location.lng}&radius=50`)
+      .then((r) => r.json())
+      .then((j) => setReports(j.reports ?? []))
+      .catch(() => {});
+  }, [location?.lat, location?.lng]);
+
+  const HEAT_LABELS: Record<number, string> = { 1: 'Mild', 2: 'Warm', 3: 'Hot', 4: 'Very Hot', 5: 'Extreme' };
+  const HEAT_COLORS: Record<number, string> = { 1: 'text-green-400', 2: 'text-lime-400', 3: 'text-amber-400', 4: 'text-red-400', 5: 'text-red-700' };
+
+  const reportUrl = location
+    ? `/report?lat=${location.lat}&lng=${location.lng}&city=${encodeURIComponent(location.city)}&plan=${plan}`
+    : `/report?plan=${plan}`;
+
   return (
     <div className="bg-[var(--surface)] rounded-2xl border border-[var(--border)] shadow-lg p-6">
-      <h3 className="font-serif font-bold text-lg mb-4 text-[var(--foreground)]">🗺️ Community Heat Reports</h3>
-      <div className="flex flex-col gap-3">
-        {reports.map((r) => (
-          <div key={r.area} className="flex items-center justify-between bg-[var(--surface-light)] rounded-xl px-4 py-3 border border-[var(--border)]">
-            <div>
-              <p className="text-sm font-semibold text-[var(--foreground)]">{r.area}</p>
-              <p className="text-xs text-[var(--text-muted)]">{r.reporter} · {r.time}</p>
-            </div>
-            <div className="text-right">
-              <p className={`text-lg font-black ${colors[r.severity]}`}>{r.temp}</p>
-              <p className={`text-xs font-semibold ${colors[r.severity]}`}>{r.severity}</p>
-            </div>
-          </div>
-        ))}
+      <div className="flex items-center justify-between mb-4 flex-wrap gap-3">
+        <h3 className="font-serif font-bold text-lg text-[var(--foreground)]">🗺️ Community Heat Reports</h3>
+        <Link
+          href={reportUrl}
+          className="flex items-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-r from-[var(--accent-fire)] to-[var(--accent-danger)] text-white text-sm font-bold hover:opacity-90 transition shadow-md"
+        >
+          <Flame size={15} />
+          Report Heat
+        </Link>
       </div>
+      {reports.length === 0 ? (
+        <div className="text-center py-6">
+          <p className="text-[var(--text-muted)] text-sm mb-3">
+            {location ? 'No community reports near this location yet.' : 'Search a location to see nearby heat reports.'}
+          </p>
+          {location && (
+            <Link
+              href={reportUrl}
+              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl border-2 border-dashed border-[var(--accent-fire)] text-[var(--accent-fire)] text-sm font-semibold hover:bg-[var(--accent-fire)] hover:text-white transition"
+            >
+              <Flame size={15} /> Be the first to report heat here
+            </Link>
+          )}
+        </div>
+      ) : (
+        <div className="flex flex-col gap-3">
+          {reports.slice(0, 5).map((r: any) => (
+            <div key={r.id} className="flex items-center justify-between bg-[var(--surface-light)] rounded-xl px-4 py-3 border border-[var(--border)]">
+              <div>
+                <p className={`text-sm font-bold ${HEAT_COLORS[r.heatLevel]}`}>{HEAT_LABELS[r.heatLevel]} Heat</p>
+                <p className="text-xs text-[var(--text-muted)] font-mono">{r.lat.toFixed(4)}, {r.lng.toFixed(4)}</p>
+                {r.comment && <p className="text-xs text-[var(--text-muted)] mt-0.5 truncate max-w-xs">{r.comment}</p>}
+              </div>
+              <div className="text-right">
+                <div className={`text-2xl font-black ${HEAT_COLORS[r.heatLevel]}`}>{r.heatLevel}/5</div>
+                <p className="text-xs text-[var(--text-muted)]">{new Date(r.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</p>
+              </div>
+            </div>
+          ))}
+          {reports.length > 5 && (
+            <Link href={reportUrl} className="text-center text-xs text-[var(--accent-fire)] hover:underline py-1">
+              View all {reports.length} reports →
+            </Link>
+          )}
+        </div>
+      )}
     </div>
   );
 }

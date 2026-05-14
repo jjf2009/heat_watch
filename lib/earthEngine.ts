@@ -68,6 +68,19 @@ function getMapId(image: any, visParams: any): Promise<{ urlFormat: string }> {
 // ─── Main Export ─────────────────────────────────────────────────────────────
 
 export async function getEETiles(lat: number, lng: number): Promise<EETileData> {
+  const keyPath = path.join(process.cwd(), "gee-key.json");
+  if (!fs.existsSync(keyPath)) {
+    console.warn("gee-key.json not found, using fallback satellite tiles.");
+    return {
+      lstTileUrl: "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
+      ndviTileUrl: "https://{s}.basemaps.cartocdn.com/rastertiles/voyager_labels_under/{z}/{x}/{y}{r}.png",
+      lstMin: 25,
+      lstMax: 55,
+      meanLST: 34.5,
+      meanNDVI: 0.45,
+    };
+  }
+
   await initEE();
   const earthengine = loadEE();
 

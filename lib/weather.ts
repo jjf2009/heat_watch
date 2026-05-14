@@ -25,6 +25,8 @@ export async function fetchCurrentWeather(
     windSpeed: res.data.wind.speed,
     description: res.data.weather[0].description,
     icon: res.data.weather[0].icon,
+    cityName: res.data.name,
+    countryCode: res.data.sys?.country,
   };
 }
 

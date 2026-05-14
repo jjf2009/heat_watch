@@ -19,6 +19,10 @@ const SUGGESTED_QUESTIONS = [
 ];
 
 export default function ChatBot({ data, plan }: { data: AppData; plan: Plan }) {
+    if (plan !== 'enterprise') {
+        return null;
+    }
+
     const [open, setOpen] = useState(false);
     const [messages, setMessages] = useState<Message[]>([
         {

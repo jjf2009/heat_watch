@@ -14,6 +14,8 @@ export type WeatherData = {
   windSpeed: number;
   description: string;
   icon: string;
+  cityName?: string;
+  countryCode?: string;
 };
 
 export type HistoricalPoint = {
