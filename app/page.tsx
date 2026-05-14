@@ -5,114 +5,102 @@ import LocationSearch from "@/components/LocationSearch";
 import Charts from "@/components/Charts";
 import ExportPDF from "@/components/ExportPDF";
 import { AppData, LocationData } from "@/lib/types";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 // HeatMap uses Leaflet which needs dynamic import (no SSR)
 const HeatMap = dynamic(() => import("@/components/HeatMap"), { ssr: false });
-  
+
 export default function Home() {
   const [data, setData] = useState<AppData | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [selectedLocation, setSelectedLocation] = useState<LocationData | null>(
+    null,
+  );
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-useEffect(() => {
-  const detectLocation = async () => {
-    try {
-      setLoading(true);
-
-      const res = await axios.get("https://ipapi.co/json/");
-
-      const {
-        city,
-        country_name,
-        latitude,
-        longitude,
-      } = res.data;
-
-      await handleLocation({
-        city,
-        country: country_name,
-        lat: latitude,
-        lng: longitude,
-      });
-
-    } catch (err) {
-      console.error("Location detection failed:", err);
-
-      // Fallback to Mumbai
-      await handleLocation({
-        city: "Mumbai",
-        country: "India",
-        lat: 19.0760,
-        lng: 72.8777,
-      });
-    }
+  const handleLocationSelected = (loc: LocationData) => {
+    setSelectedLocation(loc);
+    setError("");
   };
 
-  detectLocation();
-}, []);
+  const runAnalysis = async () => {
+    if (!selectedLocation) {
+      setError("Please select a location first.");
+      return;
+    }
 
-const handleLocation = async (loc: LocationData) => {
-  setLoading(true);
-  setError("");
+    const loc = selectedLocation;
+    setLoading(true);
+    setError("");
 
-  try {
-    const [weatherRes, historicalRes] = await Promise.all([
-      axios.get(`/api/weather?lat=${loc.lat}&lng=${loc.lng}`),
-      axios.get(`/api/historical?lat=${loc.lat}&lng=${loc.lng}`),
-    ]);
+    try {
+      const [weatherRes, historicalRes] = await Promise.all([
+        axios.get(`/api/weather?lat=${loc.lat}&lng=${loc.lng}`),
+        axios.get(`/api/historical?lat=${loc.lat}&lng=${loc.lng}`),
+      ]);
 
-    const { weather, forecast } = weatherRes.data;
-    const { historical } = historicalRes.data;
+      const { weather, forecast } = weatherRes.data;
+      const { historical } = historicalRes.data;
 
-    const mlRes = await axios.post("/api/ml-score", {
-      temp: weather.temp,
-      humidity: weather.humidity,
-      lat: loc.lat,
-      lng: loc.lng,
-      historical,
-    });
+      const mlRes = await axios.post("/api/ml-score", {
+        temp: weather.temp,
+        humidity: weather.humidity,
+        lat: loc.lat,
+        lng: loc.lng,
+        historical,
+      });
 
-    // Generate heat zones
-    const heatZones = generateHeatZones(
-      loc.lat,
-      loc.lng,
-      mlRes.data.riskScore
-    );
+      // Generate heat zones
+      const heatZones = generateHeatZones(
+        loc.lat,
+        loc.lng,
+        mlRes.data.riskScore,
+      );
 
-    setData({
-      location: loc,
-      weather,
-      historical,
-      forecast,
-      mlScore: mlRes.data,
-      heatZones,
-      fetchedAt: new Date().toISOString(),
-    });
+      setData({
+        location: loc,
+        weather,
+        historical,
+        forecast,
+        mlScore: mlRes.data,
+        heatZones,
+        fetchedAt: new Date().toISOString(),
+      });
+    } catch (err) {
+      console.error(err);
 
-  } catch (err) {
-    console.error(err);
-
-    setError(
-      "Failed to fetch climate data. Please try again."
-    );
-  } finally {
-    setLoading(false);
-  }
-};
+      setError("Failed to fetch climate data. Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <main className="min-h-screen bg-gray-50">
       {/* Header */}
       <div className="bg-gradient-to-r from-orange-500 to-red-600 text-white py-10 px-4 text-center">
         <h1 className="text-4xl font-bold mb-2">🌡️ HeatWatch</h1>
-        <p className="text-orange-100 text-lg">Urban Heat Island Prediction & Analysis Platform</p>
-        <p className="text-orange-200 text-sm mt-1">For City Planners & Climate Authorities</p>
+        <p className="text-orange-100 text-lg">
+          Urban Heat Island Prediction & Analysis Platform
+        </p>
+        <p className="text-orange-200 text-sm mt-1">
+          For City Planners & Climate Authorities
+        </p>
       </div>
 
       {/* Search */}
       <div className="max-w-4xl mx-auto px-4 -mt-6">
         <div className="bg-white rounded-2xl shadow-lg p-6">
-          <LocationSearch onLocation={handleLocation} loading={loading} />
+          <LocationSearch
+            onLocationSelected={handleLocationSelected}
+            onAnalyze={runAnalysis}
+            hasSelectedLocation={Boolean(selectedLocation)}
+            selectedLocationLabel={
+              selectedLocation
+                ? `${selectedLocation.city}, ${selectedLocation.country}`
+                : ""
+            }
+            loading={loading}
+          />
         </div>
       </div>
 
@@ -129,8 +117,10 @@ const handleLocation = async (loc: LocationData) => {
 
       {/* Results */}
       {data && !loading && (
-        <div id="report-content" className="max-w-6xl mx-auto px-4 py-8 flex flex-col gap-8">
-
+        <div
+          id="report-content"
+          className="max-w-6xl mx-auto px-4 py-8 flex flex-col gap-8"
+        >
           {/* Risk Score Banner */}
           <RiskBanner data={data} />
 
@@ -148,7 +138,6 @@ const handleLocation = async (loc: LocationData) => {
 
           {/* Export */}
           <ExportPDF data={data} />
-
         </div>
       )}
     </main>
@@ -165,20 +154,28 @@ function RiskBanner({ data }: { data: AppData }) {
   const icons = { High: "🔴", Medium: "🟡", Low: "🟢" };
 
   return (
-    <div className={`border-2 rounded-2xl p-6 ${colors[data.mlScore.riskLevel]}`}>
+    <div
+      className={`border-2 rounded-2xl p-6 ${colors[data.mlScore.riskLevel]}`}
+    >
       <div className="flex flex-col md:flex-row justify-between items-center gap-4">
         <div>
-          <p className="text-sm font-medium uppercase tracking-wide mb-1 text-black">Urban Heat Island Risk</p>
+          <p className="text-sm font-medium uppercase tracking-wide mb-1 text-black">
+            Urban Heat Island Risk
+          </p>
           <h2 className="text-3xl font-bold">
-            {icons[data.mlScore.riskLevel]} {data.location.city}, {data.location.country}
+            {icons[data.mlScore.riskLevel]} {data.location.city},{" "}
+            {data.location.country}
           </h2>
           <p className="mt-1 text-sm text-black">
-            Estimated {data.mlScore.uhi_intensity}°C warmer than surrounding rural areas
+            Estimated {data.mlScore.uhi_intensity}°C warmer than surrounding
+            rural areas
           </p>
         </div>
         <div className="text-center">
           <div className="text-6xl font-black">{data.mlScore.riskScore}</div>
-          <div className="text-sm font-semibold uppercase font-black">{data.mlScore.riskLevel} Risk</div>
+          <div className="text-sm font-semibold uppercase font-black">
+            {data.mlScore.riskLevel} Risk
+          </div>
         </div>
       </div>
     </div>
@@ -208,9 +205,14 @@ function WeatherCard({ data }: { data: AppData }) {
         <div className="mt-2 flex flex-col gap-2">
           {Object.entries(data.mlScore.factors).map(([key, val]) => (
             <div key={key} className="flex items-center gap-2">
-              <span className="text-xs w-32 capitalize text-black">{key.replace("Factor", "")}</span>
+              <span className="text-xs w-32 capitalize text-black">
+                {key.replace("Factor", "")}
+              </span>
               <div className="flex-1 bg-gray-200 rounded-full h-2">
-                <div className="bg-orange-400 h-2 rounded-full" style={{ width: `${val}%` }} />
+                <div
+                  className="bg-orange-400 h-2 rounded-full"
+                  style={{ width: `${val}%` }}
+                />
               </div>
               <span className="text-xs font-medium text-black">{val}</span>
             </div>
@@ -225,7 +227,9 @@ function WeatherCard({ data }: { data: AppData }) {
 function Recommendations({ data }: { data: AppData }) {
   return (
     <div className="bg-white rounded-2xl shadow p-6">
-      <h3 className="font-bold text-lg mb-4 text-black">🌱 Recommended Actions for City Planners</h3>
+      <h3 className="font-bold text-lg mb-4 text-black">
+        🌱 Recommended Actions for City Planners
+      </h3>
       <ul className="flex flex-col gap-3">
         {data.mlScore.recommendations.map((rec, i) => (
           <li key={i} className="flex items-start gap-3">

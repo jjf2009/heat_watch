@@ -1,7 +1,6 @@
 "use client";
 import { useState } from "react";
 import { jsPDF } from "jspdf";
-import html2canvas from "html2canvas";
 import { AppData } from "@/lib/types";
 
 type Props = {
@@ -14,7 +13,11 @@ export default function ExportPDF({ data }: Props) {
   const handleExport = async () => {
     setExporting(true);
     try {
-      const pdf = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
+      const pdf = new jsPDF({
+        orientation: "portrait",
+        unit: "mm",
+        format: "a4",
+      });
       const pageW = 210;
       const pageH = 297;
       const margin = 15;
@@ -37,7 +40,11 @@ export default function ExportPDF({ data }: Props) {
       pdf.setFontSize(11);
       pdf.setFont("helvetica", "normal");
       pdf.text("Urban Heat Island Prediction Report", margin, 29);
-      pdf.text(`Generated: ${new Date(data.fetchedAt).toLocaleString("en-IN")}`, margin, 37);
+      pdf.text(
+        `Generated: ${new Date(data.fetchedAt).toLocaleString("en-IN")}`,
+        margin,
+        37,
+      );
 
       y = 58;
 
@@ -51,7 +58,11 @@ export default function ExportPDF({ data }: Props) {
       pdf.setFontSize(10);
       pdf.setFont("helvetica", "normal");
       pdf.setTextColor(100, 100, 100);
-      pdf.text(`Coordinates: ${data.location.lat.toFixed(4)}°N, ${data.location.lng.toFixed(4)}°E`, margin, y);
+      pdf.text(
+        `Coordinates: ${data.location.lat.toFixed(4)}°N, ${data.location.lng.toFixed(4)}°E`,
+        margin,
+        y,
+      );
       y += 12;
 
       // Risk score box
@@ -79,7 +90,7 @@ export default function ExportPDF({ data }: Props) {
         `UHI Intensity: +${data.mlScore.uhi_intensity}°C warmer than surrounding rural areas`,
         pageW - margin - 5,
         y + 18,
-        { align: "right" }
+        { align: "right" },
       );
       y += 38;
 
@@ -121,9 +132,21 @@ export default function ExportPDF({ data }: Props) {
       y += 7;
 
       const factors = [
-        { label: "Thermal Anomaly", value: data.mlScore.factors.thermalFactor, desc: "Temperature deviation from 30-day mean" },
-        { label: "Humidity Stress", value: data.mlScore.factors.humidityFactor, desc: "Heat amplification from atmospheric moisture" },
-        { label: "Urban Density Proxy", value: data.mlScore.factors.urbanFactor, desc: "Estimated surface impermeability and density" },
+        {
+          label: "Thermal Anomaly",
+          value: data.mlScore.factors.thermalFactor,
+          desc: "Temperature deviation from 30-day mean",
+        },
+        {
+          label: "Humidity Stress",
+          value: data.mlScore.factors.humidityFactor,
+          desc: "Heat amplification from atmospheric moisture",
+        },
+        {
+          label: "Urban Density Proxy",
+          value: data.mlScore.factors.urbanFactor,
+          desc: "Estimated surface impermeability and density",
+        },
       ];
 
       factors.forEach((f) => {
@@ -138,7 +161,12 @@ export default function ExportPDF({ data }: Props) {
 
         // Bar fill
         const fillW = ((contentW - 20) * f.value) / 100;
-        const barColor = f.value > 65 ? [239, 68, 68] : f.value > 35 ? [245, 158, 11] : [34, 197, 94];
+        const barColor =
+          f.value > 65
+            ? [239, 68, 68]
+            : f.value > 35
+              ? [245, 158, 11]
+              : [34, 197, 94];
         pdf.setFillColor(barColor[0], barColor[1], barColor[2]);
         pdf.roundedRect(margin, y + 6, fillW, 5, 2, 2, "F");
 
@@ -174,17 +202,22 @@ export default function ExportPDF({ data }: Props) {
         pdf.setFontSize(9);
         pdf.setFont("helvetica", "normal");
         pdf.setTextColor(60, 60, 60);
-        pdf.text(`${i + 1}.  ${rec}`, margin + 4, y + 4, { maxWidth: contentW - 8 });
+        pdf.text(`${i + 1}.  ${rec}`, margin + 4, y + 4, {
+          maxWidth: contentW - 8,
+        });
         y += 14;
       });
 
       y += 6;
 
       // ============================================================
-      // PAGE 2 — Charts (screenshot the chart area)
+      // PAGE 2 — Charts (export chart canvases directly)
       // ============================================================
-      const chartEl = document.getElementById("charts-section");
-      if (chartEl) {
+      const chartCanvases = Array.from(
+        document.querySelectorAll("#charts-section canvas"),
+      ) as HTMLCanvasElement[];
+
+      if (chartCanvases.length > 0) {
         pdf.addPage();
         y = margin;
 
@@ -194,10 +227,28 @@ export default function ExportPDF({ data }: Props) {
         pdf.text("Historical Data & Forecast Analysis", margin, y);
         y += 8;
 
-        const canvas = await html2canvas(chartEl, { scale: 1.5, useCORS: true, backgroundColor: "#ffffff" });
-        const imgData = canvas.toDataURL("image/png");
-        const imgH = (canvas.height / canvas.width) * contentW;
-        pdf.addImage(imgData, "PNG", margin, y, contentW, Math.min(imgH, pageH - y - 20));
+        // Two-up layout for chart canvases
+        const gap = 6;
+        const chartW = (contentW - gap) / 2;
+        const maxChartH = 86;
+
+        chartCanvases.slice(0, 4).forEach((canvas, index) => {
+          const col = index % 2;
+          const row = Math.floor(index / 2);
+          const x = margin + col * (chartW + gap);
+          const chartY = y + row * (maxChartH + 10);
+
+          if (chartY + maxChartH > pageH - 20) return;
+
+          const imgData = canvas.toDataURL("image/png", 1.0);
+          const imgH = Math.min(
+            (canvas.height / canvas.width) * chartW,
+            maxChartH,
+          );
+          pdf.setFillColor(255, 255, 255);
+          pdf.roundedRect(x, chartY, chartW, maxChartH, 2, 2, "F");
+          pdf.addImage(imgData, "PNG", x, chartY + 2, chartW, imgH);
+        });
       }
 
       // ============================================================
@@ -211,8 +262,14 @@ export default function ExportPDF({ data }: Props) {
         pdf.setFontSize(8);
         pdf.setFont("helvetica", "normal");
         pdf.setTextColor(150, 150, 150);
-        pdf.text("HeatWatch — Urban Heat Island Prediction Platform", margin, pageH - 5);
-        pdf.text(`Page ${p} of ${totalPages}`, pageW - margin, pageH - 5, { align: "right" });
+        pdf.text(
+          "HeatWatch — Urban Heat Island Prediction Platform",
+          margin,
+          pageH - 5,
+        );
+        pdf.text(`Page ${p} of ${totalPages}`, pageW - margin, pageH - 5, {
+          align: "right",
+        });
       }
 
       // Save
@@ -231,7 +288,8 @@ export default function ExportPDF({ data }: Props) {
       <div>
         <h3 className="font-bold text-lg text-black">📄 Export Full Report</h3>
         <p className="text-sm text-gray-500 mt-1">
-          Download a professional PDF report for {data.location.city} — includes risk score, ML analysis, charts, and recommendations.
+          Download a professional PDF report for {data.location.city} — includes
+          risk score, ML analysis, charts, and recommendations.
         </p>
       </div>
       <button
