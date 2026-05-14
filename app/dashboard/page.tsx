@@ -17,7 +17,7 @@ import ONNXInsight from '@/components/ONNXInsight';
 import { generateHeatZones } from '@/lib/heatZones';
 import { Lock } from 'lucide-react';
 import Link from 'next/link';
-
+import ChatBot from '@/components/ChatBot';
 // HeatMap uses Leaflet which needs dynamic import (no SSR)
 const HeatMap = dynamic(() => import('@/components/HeatMap'), { ssr: false });
 
@@ -98,11 +98,11 @@ function DashboardContent() {
         setData((prev) =>
           prev
             ? {
-                ...prev,
-                uhiEngine: uhiRes.data,
-                mlScore: uhiRes.data.mlScore,
-                heatZones: generateHeatZones(loc.lat, loc.lng, uhiRes.data.riskScore),
-              }
+              ...prev,
+              uhiEngine: uhiRes.data,
+              mlScore: uhiRes.data.mlScore,
+              heatZones: generateHeatZones(loc.lat, loc.lng, uhiRes.data.riskScore),
+            }
             : prev
         );
       } catch (e) {
@@ -123,7 +123,7 @@ function DashboardContent() {
         <div className="absolute inset-0 opacity-[0.07]" style={{ backgroundImage: 'url("data:image/svg+xml,%3Csvg width=\'60\' height=\'60\' viewBox=\'0 0 60 60\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cg fill=\'none\' fill-rule=\'evenodd\'%3E%3Cg fill=\'%23000000\' fill-opacity=\'1\'%3E%3Cpath d=\'M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z\'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")' }}></div>
         <div className="absolute -top-24 -left-24 w-96 h-96 bg-white opacity-20 rounded-full blur-3xl mix-blend-overlay pointer-events-none"></div>
         <div className="absolute -bottom-24 -right-24 w-96 h-96 bg-black opacity-10 rounded-full blur-3xl mix-blend-overlay pointer-events-none"></div>
-        
+
         <div className="relative z-10 max-w-4xl mx-auto">
           <h1 className="text-5xl md:text-6xl font-sans font-black mb-4 tracking-tight drop-shadow-sm">
             HeatWatch Dashboard
@@ -279,6 +279,9 @@ function DashboardContent() {
 
         </div>
       )}
+      {data && !loading && (
+        <ChatBot data={data} plan={plan} />
+      )}
     </main>
   );
 }
@@ -377,11 +380,11 @@ function CommunityHeatReports() {
 function RiskBanner({ data }: { data: AppData }) {
   if (!data.mlScore) return null;
   const riskColor = data.mlScore.riskLevel === 'High' ? 'var(--accent-danger)' :
-                    data.mlScore.riskLevel === 'Medium' ? 'var(--accent-heat)' :
-                    'var(--accent-cool)';
+    data.mlScore.riskLevel === 'Medium' ? 'var(--accent-heat)' :
+      'var(--accent-cool)';
   const bgColor = data.mlScore.riskLevel === 'High' ? 'rgba(196, 30, 58, 0.1)' :
-                  data.mlScore.riskLevel === 'Medium' ? 'rgba(247, 147, 30, 0.1)' :
-                  'rgba(30, 136, 229, 0.1)';
+    data.mlScore.riskLevel === 'Medium' ? 'rgba(247, 147, 30, 0.1)' :
+      'rgba(30, 136, 229, 0.1)';
   const icons = { High: '🔴', Medium: '🟡', Low: '🟢' };
 
   return (
