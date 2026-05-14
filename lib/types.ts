@@ -55,4 +55,5 @@ export type AppData = {
   mlScore: MLScore;
   heatZones: HeatZone[];
   fetchedAt: string;
+  uhiEngine?: any;
 };

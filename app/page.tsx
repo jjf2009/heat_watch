@@ -19,41 +19,55 @@ export default function Home() {
     setLoading(true);
     setError("");
     try {
-      const [weatherRes, historicalRes] = await Promise.all([
-        axios.get(`/api/weather?lat=${loc.lat}&lng=${loc.lng}`),
-        axios.get(`/api/historical?lat=${loc.lat}&lng=${loc.lng}`),
-      ]);
-
-      const { weather, forecast } = weatherRes.data;
-      const { historical } = historicalRes.data;
-
-      const mlRes = await axios.post("/api/ml-score", {
-        temp: weather.temp,
-        humidity: weather.humidity,
+      // Single call to the new UHI engine
+      const engineRes = await axios.post("/api/uhi-engine", {
         lat: loc.lat,
         lng: loc.lng,
-        historical,
+        city: loc.city,
       });
-
-      // Generate heat zones around the city center
-      const heatZones = generateHeatZones(loc.lat, loc.lng, mlRes.data.riskScore);
-
+  
+      const d = engineRes.data;
+  
       setData({
         location: loc,
-        weather,
-        historical,
-        forecast,
-        mlScore: mlRes.data,
-        heatZones,
-        fetchedAt: new Date().toISOString(),
+        weather: {
+          temp: d.urbanTemp,
+          feelsLike: d.urbanTemp - 2,
+          humidity: 60, // still fetch separately if needed
+          windSpeed: 3.5,
+          description: "analyzed",
+          icon: "01d",
+        },
+        historical: d.historical,
+        forecast: d.forecast.map((f: any) => ({
+          date: f.date,
+          maxTemp: f.temp + 2,
+          minTemp: f.temp - 4,
+          humidity: 60,
+        })),
+        mlScore: {
+          riskScore: d.riskScore,
+          riskLevel: d.riskLevel,
+          uhi_intensity: d.uhiIntensity,
+          factors: {
+            thermalFactor: Math.min(100, d.uhiIntensity * 15),
+            humidityFactor: 30,
+            urbanFactor: Math.min(100, (1 - d.nasa.ndvi_proxy) * 100),
+          },
+          recommendations: d.recommendations.map((r: any) => r.detail),
+        },
+        heatZones: generateHeatZones(loc.lat, loc.lng, d.riskScore),
+        fetchedAt: d.fetchedAt,
+  
+        // NEW fields — add to AppData type
+        uhiEngine: d,
       });
     } catch (e) {
-      setError("Failed to fetch data. Check your API key and try again.");
+      setError("Failed to fetch. Check API keys.");
     } finally {
       setLoading(false);
     }
   };
-
   return (
     <main className="min-h-screen bg-gray-50">
       {/* Header */}
