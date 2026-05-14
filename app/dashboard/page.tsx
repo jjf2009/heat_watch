@@ -42,11 +42,11 @@ export default function Dashboard() {
 
   if (!user || user.plan !== 'premium') {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+      <div className="min-h-screen flex items-center justify-center bg-[var(--background)]">
         <div className="text-center">
-          <Lock size={64} className="text-orange-600 mx-auto mb-4" />
-          <h1 className="text-2xl font-bold text-gray-900 mb-2">Premium Feature</h1>
-          <p className="text-gray-600 mb-6">This feature is only available for Premium users.</p>
+          <Lock size={64} className="text-[var(--accent-fire)] mx-auto mb-4" />
+          <h1 className="text-2xl font-bold text-[var(--foreground)] mb-2">Premium Feature</h1>
+          <p className="text-[var(--text-muted)] mb-6">This feature is only available for Premium users.</p>
         </div>
       </div>
     );

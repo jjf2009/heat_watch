@@ -1,119 +1,135 @@
-import { Users, Lightbulb, Target, Rocket } from 'lucide-react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Users, Lightbulb, Target, Rocket, Globe, Zap } from 'lucide-react';
 
 export default function AboutPage() {
   return (
-    <div className="min-h-screen bg-gradient-to-b from-white to-gray-50">
+    <div className="min-h-screen bg-[var(--background)]">
       {/* Hero */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
-        <div className="text-center mb-16">
-          <h1 className="text-5xl lg:text-6xl font-bold text-gray-900 mb-6">About HeatWatch</h1>
-          <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-            We're on a mission to help cities around the world understand and combat the urban heat island effect through advanced AI and satellite technology.
-          </p>
-        </div>
+      <section className="max-w-7xl mx-auto px-6 py-20 text-center">
+        <Badge variant="info" className="mb-4">About Us</Badge>
+        <h1 className="text-5xl md:text-6xl font-serif font-bold mb-6 text-[var(--foreground)]">About HeatWatch</h1>
+        <p className="text-xl text-[var(--text-muted)] max-w-3xl mx-auto">
+          We&apos;re on a mission to help cities around the world understand and combat the urban heat island effect through advanced AI and satellite technology.
+        </p>
       </section>
 
-      {/* Mission, Vision, Values */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-16">
+      {/* Mission, Vision, Impact */}
+      <section className="max-w-7xl mx-auto px-6 py-20">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           {[
             {
-              icon: <Target size={40} className="text-orange-600" />,
+              icon: Target,
               title: 'Our Mission',
               description: 'Empower city planners and climate authorities with real-time, data-driven insights to create cooler, more livable urban spaces.',
             },
             {
-              icon: <Lightbulb size={40} className="text-orange-600" />,
+              icon: Lightbulb,
               title: 'Our Vision',
               description: 'A world where urban heat islands are understood, monitored, and managed through intelligent technology and collaboration.',
             },
             {
-              icon: <Rocket size={40} className="text-orange-600" />,
+              icon: Rocket,
               title: 'Our Impact',
               description: 'Helping reduce urban temperatures by 2-3°C through evidence-based intervention recommendations.',
             },
           ].map((item, i) => (
-            <div key={i} className="bg-white rounded-xl p-8 shadow-lg border border-gray-100 text-center">
-              <div className="flex justify-center mb-4">{item.icon}</div>
-              <h3 className="text-2xl font-bold text-gray-900 mb-4">{item.title}</h3>
-              <p className="text-gray-600 leading-relaxed">{item.description}</p>
-            </div>
+            <Card key={i} hover className="text-center">
+              <CardHeader>
+                <item.icon size={40} className="text-[var(--accent-fire)] mx-auto mb-2" />
+                <CardTitle>{item.title}</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-[var(--text-muted)]">{item.description}</p>
+              </CardContent>
+            </Card>
           ))}
         </div>
       </section>
 
       {/* Technology Section */}
-      <section className="bg-white py-20">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <h2 className="text-4xl font-bold text-gray-900 mb-12 text-center">Our Technology</h2>
+      <section className="py-20 bg-[var(--surface)] border-y border-[var(--border)]">
+        <div className="max-w-7xl mx-auto px-6">
+          <h2 className="text-4xl font-serif font-bold text-[var(--foreground)] mb-12 text-center">Our Technology</h2>
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
             <div>
-              <h3 className="text-2xl font-bold text-gray-900 mb-6">Advanced AI & ML</h3>
-              <ul className="space-y-4">
-                {[
-                  'Neural Networks (ONNX) for pattern recognition',
-                  'Regression forecasting for temperature trends',
-                  'Risk scoring algorithms for UHI assessment',
-                  'Real-time data fusion from multiple sources',
-                  'Intervention impact simulations',
-                ].map((item, i) => (
-                  <li key={i} className="flex items-center gap-3">
-                    <div className="w-2 h-2 bg-orange-600 rounded-full" />
-                    <span className="text-gray-700">{item}</span>
+              <h3 className="text-2xl font-serif font-bold text-[var(--foreground)] mb-4">Machine Learning at Scale</h3>
+              <p className="text-[var(--text-muted)] mb-4">
+                Our proprietary neural networks analyze satellite imagery, weather patterns, and urban data to provide unprecedented accuracy in heat island prediction and analysis.
+              </p>
+              <ul className="space-y-3">
+                {['ONNX Neural Networks', 'NASA Satellite Integration', 'Real-time Data Processing'].map((tech, i) => (
+                  <li key={i} className="flex items-center gap-2 text-[var(--foreground)]">
+                    <Zap size={18} className="text-[var(--accent-fire)]" />
+                    {tech}
                   </li>
                 ))}
               </ul>
             </div>
-            <div className="bg-gradient-to-br from-orange-100 to-red-100 rounded-2xl p-12 text-center">
-              <div className="text-6xl mb-4">🤖📡🛰️</div>
-              <p className="text-gray-700 font-semibold">Machine Learning + Satellite Data + Real-time Integration</p>
-            </div>
+            <Card className="bg-gradient-to-br from-[var(--accent-fire)] to-[var(--accent-heat)] border-0">
+              <CardContent className="p-12">
+                <div className="text-center">
+                  <Globe size={64} className="text-white mx-auto mb-4" />
+                  <p className="text-white text-lg font-semibold">Global Coverage with Local Precision</p>
+                </div>
+              </CardContent>
+            </Card>
           </div>
         </div>
       </section>
 
       {/* Team Section */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
-        <h2 className="text-4xl font-bold text-gray-900 mb-12 text-center">Our Team</h2>
-        <div className="bg-white rounded-xl p-12 shadow-lg border border-gray-100">
-          <div className="flex items-center justify-center gap-3 mb-6">
-            <Users size={32} className="text-orange-600" />
-            <h3 className="text-2xl font-bold text-gray-900">Built by Climate Tech Experts</h3>
-          </div>
-          <p className="text-gray-600 text-center max-w-2xl mx-auto mb-8 leading-relaxed">
-            Our team consists of climate scientists, machine learning engineers, and urban planners with decades of combined experience in environmental monitoring, satellite imagery analysis, and sustainable city development. We're passionate about using technology to solve real-world climate challenges.
-          </p>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {[
-              { role: 'CTO', description: 'ML & Satellite Data Expert' },
-              { role: 'Lead Climate Scientist', description: 'UHI Research Specialist' },
-              { role: 'Product Lead', description: 'Urban Planning Background' },
-            ].map((member, i) => (
-              <div key={i} className="bg-gray-50 rounded-lg p-6 text-center border border-gray-200">
-                <div className="w-16 h-16 bg-orange-600 rounded-full mx-auto mb-4 flex items-center justify-center text-white text-2xl">
-                  {i === 0 ? '👨‍💻' : i === 1 ? '👨‍🔬' : '👩‍🏫'}
-                </div>
-                <p className="font-bold text-gray-900 mb-1">{member.role}</p>
-                <p className="text-sm text-gray-600">{member.description}</p>
-              </div>
-            ))}
-          </div>
+      <section className="max-w-7xl mx-auto px-6 py-20">
+        <h2 className="text-4xl font-serif font-bold text-[var(--foreground)] mb-12 text-center">Our Team</h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+          {[
+            {
+              role: 'Climate Scientists & Data Engineers',
+              count: '15+',
+              desc: 'PhDs in atmospheric science, machine learning, and environmental engineering'
+            },
+            {
+              role: 'Product & Design',
+              count: '8+',
+              desc: 'Building intuitive tools for complex climate data analysis'
+            },
+            {
+              role: 'Government & NGO Partners',
+              count: '50+',
+              desc: 'Working with cities and organizations worldwide'
+            },
+            {
+              role: 'Active Users',
+              count: '50K+',
+              desc: 'From planners to climate scientists, across 150+ countries'
+            },
+          ].map((item, i) => (
+            <Card key={i} hover>
+              <CardHeader>
+                <CardTitle className="text-[var(--accent-fire)]">{item.count}</CardTitle>
+                <h3 className="text-lg font-semibold text-[var(--foreground)]">{item.role}</h3>
+              </CardHeader>
+              <CardContent>
+                <p className="text-[var(--text-muted)]">{item.desc}</p>
+              </CardContent>
+            </Card>
+          ))}
         </div>
       </section>
 
-      {/* Stats Section */}
-      <section className="bg-gradient-to-r from-orange-600 to-red-600 text-white py-20">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-8 text-center">
+      {/* Values */}
+      <section className="py-20 bg-[var(--surface)] border-y border-[var(--border)]">
+        <div className="max-w-7xl mx-auto px-6">
+          <h2 className="text-4xl font-serif font-bold text-[var(--foreground)] mb-12 text-center">Our Values</h2>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {[
-              { number: '50+', label: 'Cities Monitored' },
-              { number: '1M+', label: 'Data Points/Day' },
-              { number: '99.9%', label: 'Uptime' },
-              { number: '2.5°C', label: 'Avg. Temperature Reduction' },
-            ].map((stat, i) => (
-              <div key={i}>
-                <p className="text-4xl font-bold mb-2">{stat.number}</p>
-                <p className="text-orange-100">{stat.label}</p>
+              { title: 'Data Integrity', desc: 'We trust only verified, peer-reviewed data sources' },
+              { title: 'Open Science', desc: 'Our research is published and available to the scientific community' },
+              { title: 'Climate Action', desc: 'Everything we build is in service of a cooler, more sustainable world' },
+            ].map((value, i) => (
+              <div key={i} className="p-6 border border-[var(--border)] rounded-lg hover:border-[var(--accent-fire)] transition-colors">
+                <h3 className="text-xl font-semibold text-[var(--foreground)] mb-2">{value.title}</h3>
+                <p className="text-[var(--text-muted)]">{value.desc}</p>
               </div>
             ))}
           </div>

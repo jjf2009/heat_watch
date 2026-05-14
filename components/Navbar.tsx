@@ -21,12 +21,12 @@ export default function Navbar() {
 
   return (
     <>
-      <nav className="bg-white shadow-md sticky top-0 z-40">
+      <nav className="bg-[var(--surface)] border-b border-[var(--border)] sticky top-0 z-40 backdrop-blur-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             {/* Logo */}
-            <Link href="/" className="flex items-center gap-2 font-bold text-xl text-orange-600">
-              <div className="w-8 h-8 bg-orange-600 rounded-full flex items-center justify-center text-white text-sm font-bold">🌡️</div>
+            <Link href="/" className="flex items-center gap-2 font-bold text-xl text-[var(--accent-fire)]">
+              <div className="w-8 h-8 bg-gradient-to-br from-[var(--accent-fire)] to-[var(--accent-heat)] rounded-full flex items-center justify-center text-white text-sm font-bold">🌡️</div>
               HeatWatch
             </Link>
 
@@ -36,7 +36,7 @@ export default function Navbar() {
                 <Link
                   key={link.href}
                   href={link.href}
-                  className="text-gray-600 hover:text-orange-600 transition-colors text-sm font-medium"
+                  className="text-[var(--text-muted)] hover:text-[var(--foreground)] transition-colors text-sm font-medium"
                 >
                   {link.label}
                 </Link>
