@@ -6,7 +6,7 @@ interface User {
   id: string;
   email: string;
   name: string;
-  plan: 'free' | 'premium';
+  plan: 'free' | 'premium' | 'professional' | 'enterprise';
 }
 
 interface AuthContextType {

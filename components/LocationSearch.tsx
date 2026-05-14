@@ -54,11 +54,13 @@ export default function LocationSearch({
           onKeyDown={(e) => e.key === "Enter" && searchCity()}
           placeholder="Enter city name (e.g. Mumbai, Delhi, Pune)"
           className="flex-1 bg-[var(--surface-light)] border border-[var(--border)] rounded-xl px-4 py-3 text-sm text-[var(--foreground)] placeholder-[var(--text-muted)] focus:outline-none focus:ring-2 focus:ring-[var(--accent-fire)]"
+          suppressHydrationWarning
         />
         <button
           onClick={searchCity}
           disabled={loading}
           className="bg-[var(--accent-fire)] hover:bg-[var(--accent-heat)] text-white px-5 py-3 rounded-xl text-sm font-semibold disabled:opacity-50 transition-colors"
+          suppressHydrationWarning
         >
           Find
         </button>
@@ -79,6 +81,7 @@ export default function LocationSearch({
         onClick={detectFromIP}
         disabled={detecting || loading}
         className="text-sm text-[var(--accent-fire)] underline underline-offset-2 hover:opacity-70 disabled:opacity-50"
+        suppressHydrationWarning
       >
         {detecting ? "Detecting..." : "Use my current location"}
       </button>

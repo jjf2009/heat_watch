@@ -63,6 +63,7 @@ export default function Navbar() {
                 <button
                   onClick={() => setLoginOpen(true)}
                   className="px-6 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors font-medium text-sm"
+                  suppressHydrationWarning
                 >
                   Login
                 </button>
@@ -113,6 +114,7 @@ export default function Navbar() {
                       setMobileOpen(false);
                     }}
                     className="w-full py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors font-medium text-sm"
+                    suppressHydrationWarning
                   >
                     Login
                   </button>

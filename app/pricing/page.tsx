@@ -21,7 +21,7 @@ export default function PricingPage() {
         'Basic temperature analysis',
       ],
       cta: user ? 'Continue with free tier' : 'Get Started',
-      ctaLink: '/dashboard',
+      ctaLink: '/dashboard?plan=free',
     },
     {
       name: 'Professional',
@@ -41,7 +41,7 @@ export default function PricingPage() {
       highlighted: true,
       badge: 'MOST POPULAR',
       cta: user ? 'Continue with professional' : 'Upgrade Now',
-      ctaLink: user ? '/dashboard' : '/dashboard',
+      ctaLink: '/dashboard?plan=professional',
     },
     {
       name: 'Enterprise',
@@ -59,7 +59,7 @@ export default function PricingPage() {
         'Multi-user collaboration',
       ],
       cta: 'Continue with enterprise',
-      ctaLink: '/contact',
+      ctaLink: '/dashboard?plan=enterprise',
     },
   ];
 

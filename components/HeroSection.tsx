@@ -33,7 +33,7 @@ export default function HeroSection() {
 
         {/* CTA Buttons */}
         <div className="flex flex-col sm:flex-row gap-4 justify-center mb-16 animate-fadeUp" style={{ animationDelay: "0.3s" }}>
-          <Link href="/dashboard">
+          <Link href="/dashboard?plan=free">
             <Button size="lg" className="w-full sm:w-auto">
               Start Free Analysis
             </Button>
