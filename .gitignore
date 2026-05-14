@@ -39,3 +39,8 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# Google Earth Engine private key
+gee-key.json
+*.p12
+*.pem

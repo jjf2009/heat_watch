@@ -6,6 +6,13 @@ import Charts from "@/components/Charts";
 import ExportPDF from "@/components/ExportPDF";
 import { AppData, LocationData } from "@/lib/types";
 import { useState } from "react";
+import UHIDeltaPanel from "@/components/UHIDeltaPanel";
+import PeakHourPanel from "@/components/PeakHourPanel";
+import RegressionForecast from "@/components/RegressionForecast";
+import InterventionSimulator from "@/components/InterventionSimulator";
+import ONNXInsight from "@/components/ONNXInsight";
+
+import { generateHeatZones } from "@/lib/heatZones";
 // HeatMap uses Leaflet which needs dynamic import (no SSR)
 const HeatMap = dynamic(() => import("@/components/HeatMap"), { ssr: false });
 
@@ -41,35 +48,50 @@ export default function Home() {
       const { weather, forecast } = weatherRes.data;
       const { historical } = historicalRes.data;
 
-      const mlRes = await axios.post("/api/ml-score", {
-        temp: weather.temp,
-        humidity: weather.humidity,
-        lat: loc.lat,
-        lng: loc.lng,
-        historical,
-      });
+      // Generate initial heat zones from a default score
+      const heatZones = generateHeatZones(loc.lat, loc.lng, 50);
 
-      // Generate heat zones
-      const heatZones = generateHeatZones(
-        loc.lat,
-        loc.lng,
-        mlRes.data.riskScore,
-      );
-
+      // Show core results immediately
       setData({
         location: loc,
         weather,
         historical,
         forecast,
-        mlScore: mlRes.data,
+        mlScore: null,
         heatZones,
+        uhiEngine: null,
         fetchedAt: new Date().toISOString(),
       });
+      setLoading(false);
+
+      // ASYNC: UHI Engine (~5-8s) — panels show when ready
+      try {
+        const uhiRes = await axios.post("/api/uhi-engine", {
+          lat: loc.lat,
+          lng: loc.lng,
+          city: loc.city,
+        });
+
+        setData((prev) =>
+          prev
+            ? {
+                ...prev,
+                uhiEngine: uhiRes.data,
+                mlScore: uhiRes.data.mlScore,
+                heatZones: generateHeatZones(
+                  loc.lat,
+                  loc.lng,
+                  uhiRes.data.riskScore
+                ),
+              }
+            : prev
+        );
+      } catch (e) {
+        console.warn("UHI Engine failed, core results still visible", e);
+      }
     } catch (err) {
       console.error(err);
-
       setError("Failed to fetch climate data. Please try again.");
-    } finally {
       setLoading(false);
     }
   };
@@ -122,7 +144,13 @@ export default function Home() {
           className="max-w-6xl mx-auto px-4 py-8 flex flex-col gap-8"
         >
           {/* Risk Score Banner */}
-          <RiskBanner data={data} />
+          {data.mlScore ? (
+            <RiskBanner data={data} />
+          ) : (
+            <div className="border-2 rounded-2xl p-6 bg-gray-50 border-gray-200 animate-pulse h-32 flex items-center justify-center">
+              <span className="text-gray-400">Calculating risk score...</span>
+            </div>
+          )}
 
           {/* Map + Current Weather */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -134,10 +162,55 @@ export default function Home() {
           <Charts data={data} />
 
           {/* Recommendations */}
-          <Recommendations data={data} />
+          {data.mlScore && <Recommendations data={data} />}
 
           {/* Export */}
           <ExportPDF data={data} />
+
+          {/* Advanced UHI Engine Panels */}
+          {data.uhiEngine ? (
+            <>
+              <UHIDeltaPanel
+                urbanTemp={data.uhiEngine.urbanTemp}
+                ruralBaseline={data.uhiEngine.ruralBaseline}
+                ruralTemps={data.uhiEngine.ruralTemps}
+                uhiIntensity={data.uhiEngine.uhiIntensity}
+                adjustedUHI={data.uhiEngine.adjustedUHI}
+                nasaLST={data.uhiEngine.nasa.lst}
+                nasaNDVI={data.uhiEngine.nasa.ndvi_proxy}
+                city={data.location.city}
+              />
+
+              <PeakHourPanel
+                hourlyPattern={data.uhiEngine.hourlyPattern}
+                peakHour={data.uhiEngine.peakHour}
+                ruralBaseline={data.uhiEngine.ruralBaseline}
+              />
+
+              <RegressionForecast
+                historical={data.uhiEngine.historical}
+                forecast={data.uhiEngine.forecast}
+                regression={data.uhiEngine.regression}
+                ruralBaseline={data.uhiEngine.ruralBaseline}
+              />
+
+              <ONNXInsight data={data} />
+
+              <InterventionSimulator
+                currentUHI={data.uhiEngine.uhiIntensity}
+                lat={data.location.lat}
+                lng={data.location.lng}
+                city={data.location.city}
+              />
+            </>
+
+          ) : (
+            <div className="border-2 rounded-2xl p-8 bg-white border-dashed border-gray-300 text-center">
+              <div className="inline-block w-8 h-8 border-4 border-orange-400 border-t-transparent rounded-full animate-spin"></div>
+              <p className="mt-4 text-gray-500 font-medium">Loading advanced UHI analysis...</p>
+              <p className="text-sm text-gray-400 mt-1">Fetching NASA satellite data and computing regression models.</p>
+            </div>
+          )}
         </div>
       )}
     </main>
@@ -146,6 +219,7 @@ export default function Home() {
 
 // Risk Banner Component
 function RiskBanner({ data }: { data: AppData }) {
+  if (!data.mlScore) return null;
   const colors = {
     High: "bg-red-50 border-red-300 text-red-800",
     Medium: "bg-yellow-50 border-yellow-300 text-yellow-800",
@@ -200,61 +274,86 @@ function WeatherCard({ data }: { data: AppData }) {
           </div>
         ))}
       </div>
-      <div className="mt-4 p-3 bg-orange-50 rounded-xl">
-        <p className="text-xs text-gray-500">Risk Factors Breakdown</p>
-        <div className="mt-2 flex flex-col gap-2">
-          {Object.entries(data.mlScore.factors).map(([key, val]) => (
-            <div key={key} className="flex items-center gap-2">
-              <span className="text-xs w-32 capitalize text-black">
-                {key.replace("Factor", "")}
-              </span>
-              <div className="flex-1 bg-gray-200 rounded-full h-2">
-                <div
-                  className="bg-orange-400 h-2 rounded-full"
-                  style={{ width: `${val}%` }}
-                />
+      
+      {data.mlScore && (
+        <div className="mt-4 p-3 bg-orange-50 rounded-xl">
+          <p className="text-xs text-gray-500 uppercase font-bold tracking-wider">
+            🛰️ Satellite-Ground Composite Index
+          </p>
+
+          <div className="mt-2 flex flex-col gap-2">
+            {Object.entries(data.mlScore.factors).map(([key, val]) => (
+              <div key={key} className="flex items-center gap-2">
+                <span className="text-xs w-32 capitalize text-black">
+                  {key.replace("Factor", "")}
+                </span>
+                <div className="flex-1 bg-gray-200 rounded-full h-2">
+                  <div
+                    className="bg-orange-400 h-2 rounded-full"
+                    style={{ width: `${val}%` }}
+                  />
+                </div>
+                <span className="text-xs font-medium text-black">{val}</span>
               </div>
-              <span className="text-xs font-medium text-black">{val}</span>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
-      </div>
+      )}
     </div>
   );
 }
 
 // Recommendations
 function Recommendations({ data }: { data: AppData }) {
+  const recs = data.uhiEngine?.recommendations;
+
+  if (!recs || recs.length === 0) {
+    if (!data.uhiEngine) return null;
+    return (
+      <div className="bg-white rounded-2xl shadow p-6">
+        <h3 className="font-bold text-lg mb-2 text-black">🌱 AI Recommendations</h3>
+        <p className="text-sm text-gray-400">Generating AI recommendations…</p>
+      </div>
+    );
+  }
+
+  const priorityStyle: Record<string, string> = {
+    High: "bg-red-100 text-red-700 border-red-200",
+    Medium: "bg-yellow-100 text-yellow-700 border-yellow-200",
+    Low: "bg-green-100 text-green-700 border-green-200",
+  };
+
+  const iconMap: Record<string, string> = {
+    trees: "🌳", leaf: "🌿", droplet: "💧", building: "🏢",
+    sun: "☀️", "chart-line": "📈", default: "🔹",
+  };
+
   return (
     <div className="bg-white rounded-2xl shadow p-6">
-      <h3 className="font-bold text-lg mb-4 text-black">
-        🌱 Recommended Actions for City Planners
-      </h3>
-      <ul className="flex flex-col gap-3">
-        {data.mlScore.recommendations.map((rec, i) => (
-          <li key={i} className="flex items-start gap-3">
-            <span className="text-orange-500 font-bold mt-0.5">→</span>
-            <span className="text-black text-sm">{rec}</span>
-          </li>
+      <div className="flex items-center justify-between mb-4">
+        <h3 className="font-bold text-lg text-black">🌱 AI Recommendations for City Planners</h3>
+        <span className="text-xs bg-purple-100 text-purple-700 px-2 py-1 rounded-full font-medium">
+          ✨ Powered by Groq AI
+        </span>
+      </div>
+      <div className="flex flex-col gap-3">
+        {recs.map((rec, i) => (
+          <div key={i} className="flex items-start gap-4 p-4 rounded-xl border border-gray-100 bg-gray-50 hover:bg-orange-50 hover:border-orange-200 transition-colors">
+            <div className="text-2xl flex-shrink-0">{iconMap[rec.icon] ?? iconMap.default}</div>
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center gap-2 mb-1 flex-wrap">
+                <span className="font-semibold text-sm text-black">{rec.action}</span>
+                <span className={`text-xs px-2 py-0.5 rounded-full border font-medium ${priorityStyle[rec.priority] ?? priorityStyle.Medium}`}>
+                  {rec.priority} Priority
+                </span>
+              </div>
+              <p className="text-sm text-gray-600 leading-relaxed">{rec.detail}</p>
+              <p className="text-xs text-orange-600 font-medium mt-1.5">📉 {rec.impact}</p>
+            </div>
+          </div>
         ))}
-      </ul>
+      </div>
     </div>
   );
 }
 
-// Heat zone generator — creates points around city center scaled by risk
-function generateHeatZones(lat: number, lng: number, riskScore: number) {
-  const zones = [];
-  const count = 40;
-  for (let i = 0; i < count; i++) {
-    const angle = Math.random() * 2 * Math.PI;
-    const radius = Math.random() * 0.08;
-    zones.push({
-      lat: lat + radius * Math.sin(angle),
-      lng: lng + radius * Math.cos(angle),
-      intensity: (riskScore / 100) * (0.5 + Math.random() * 0.5),
-    });
-  }
-  zones.push({ lat, lng, intensity: riskScore / 100 }); // center point always hottest
-  return zones;
-}
