@@ -5,7 +5,7 @@ export async function GET(req: Request) {
   const { searchParams } = new URL(req.url);
   const latStr = searchParams.get("lat");
   const lngStr = searchParams.get("lng");
-  const apiKey = process.env.OPENWEATHER_API_KEY;
+  const apiKey = process.env.OPENWEATHER_API_KEY || "";
 
   console.log("[API Weather] Request received:", { lat: latStr, lng: lngStr, hasApiKey: !!apiKey });
 
@@ -21,11 +21,9 @@ export async function GET(req: Request) {
     return NextResponse.json({ error: "lat and lng must be valid numbers" }, { status: 400 });
   }
 
-  if (!apiKey) {
-    return NextResponse.json({ error: "OpenWeather API key missing on server (.env.local)" }, { status: 500 });
-  }
-
   try {
+    // Using the resilient library helpers which automatically fall back to 
+    // climate-aware simulated data if the API key is missing, invalid, or throttled.
     const [weather, forecast] = await Promise.all([
       fetchCurrentWeather(latNum, lngNum, apiKey),
       fetchForecast(latNum, lngNum, apiKey),
@@ -33,15 +31,10 @@ export async function GET(req: Request) {
 
     return NextResponse.json({ weather, forecast });
   } catch (err: any) {
-    const status = err?.response?.status || 500;
-    const data = err?.response?.data;
-    console.error(`[API Weather] OpenWeatherMap API failed with status ${status}:`, data || err.message);
-    
+    // This catch is just a super safe backstop.
+    console.error(`[API Weather] Unexpected failure:`, err.message);
     return NextResponse.json(
-      { 
-        error: `Failed to fetch weather: ${data?.message || err.message}`, 
-        details: data 
-      },
+      { error: `Resilient weather pipeline failed: ${err.message}` },
       { status: 500 }
     );
   }

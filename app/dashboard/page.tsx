@@ -69,14 +69,25 @@ function DashboardContent() {
 
     try {
       let weatherData = null;
-      let forecastData = [];
+      let forecastData: any[] = [];
       try {
         const weatherRes = await axios.get(`/api/weather?lat=${loc.lat}&lng=${loc.lng}`);
         weatherData = weatherRes.data.weather;
         forecastData = weatherRes.data.forecast;
-      } catch (wErr) {
-        console.error('Weather API failed', wErr);
-        throw new Error('Failed to fetch current weather. Please check your API credentials and try again.');
+      } catch (wErr: any) {
+        const status = wErr?.response?.status;
+        const serverMsg = wErr?.response?.data?.error ?? '';
+        console.error('Weather API failed', { status, serverMsg, wErr });
+
+        if (status === 401 || serverMsg.toLowerCase().includes('401') || serverMsg.toLowerCase().includes('invalid api key')) {
+          throw new Error('OpenWeather API key is invalid or not yet activated. New keys take up to 2 hours to activate — please wait and try again, or replace the key in .env.local.');
+        } else if (status === 400 && serverMsg.includes('NaN')) {
+          throw new Error('Location coordinates are missing. Please search for a city first.');
+        } else if (status >= 500 && serverMsg) {
+          throw new Error(`Weather service error: ${serverMsg}`);
+        } else {
+          throw new Error('Could not reach the weather service. Check your internet connection and try again.');
+        }
       }
 
       let historicalData = [];

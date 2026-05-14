@@ -1,12 +1,14 @@
 'use client';
 
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { useAuth } from '@/lib/auth-context';
 import { useState } from 'react';
 import { Menu, X, LogOut } from 'lucide-react';
 import LoginModal from './LoginModal';
 
 export default function Navbar() {
+  const router = useRouter();
   const { user, logout } = useAuth();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [loginOpen, setLoginOpen] = useState(false);
@@ -63,7 +65,10 @@ export default function Navbar() {
                     <p className="text-xs text-[var(--accent-fire)] font-semibold uppercase">{user.plan} plan</p>
                   </div>
                   <button
-                    onClick={() => logout()}
+                    onClick={async () => {
+                      await logout();
+                      router.push('/');
+                    }}
                     className="p-2 hover:bg-white/10 rounded-lg transition-colors"
                     title="Logout"
                   >
@@ -110,8 +115,9 @@ export default function Navbar() {
               <div className="pt-4 border-t border-gray-200 mt-4">
                 {user ? (
                   <button
-                    onClick={() => {
-                      logout();
+                    onClick={async () => {
+                      await logout();
+                      router.push('/');
                       setMobileOpen(false);
                     }}
                     className="w-full text-left py-2 text-gray-600 hover:text-orange-600 text-sm font-medium flex items-center gap-2"
