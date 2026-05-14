@@ -1,6 +1,6 @@
 @import "tailwindcss";
-@import "@fontsource/archivo";
-@import "@fontsource/source-serif-pro";
+@import "@fontsource/archivo/index.css";
+@import "@fontsource/source-serif-pro/index.css";
 
 :root {
   /* Heat-inspired color palette */
