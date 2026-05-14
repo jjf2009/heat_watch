@@ -89,8 +89,14 @@ export type UHIEngineData = {
   peakHour: { time: string; temp: number; uhiDelta: number };
   interventionResult: SimResult | null;
   recommendations: Recommendation[];
+  onnxPrediction: {
+    historicalUHIBaseline: number;
+    aboveBaseline: boolean;
+    anomaly: number;
+  };
   fetchedAt: string;
 };
+
 
 export type AppData = {
   location: LocationData;

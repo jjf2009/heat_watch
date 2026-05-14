@@ -6,6 +6,9 @@ import { calculateUHIScore } from "@/lib/mlScore";
 import { linearRegression, forecastTemperatures } from "@/lib/regression";
 import { calculateIntervention } from "@/lib/intervention";
 import { generateRecommendations } from "@/lib/recommendations";
+import { predictUHI } from "@/lib/onnxModel";
+import { getEETiles } from "@/lib/earthEngine";
+
 
 const RURAL_OFFSETS = [
   { lat: 0.225, lng: 0 }, // North ~25km
@@ -45,14 +48,20 @@ export async function POST(req: Request) {
     // === STEP 3: Historical + Humidity ===
     const historicalData = await fetchHistoricalWeather(lat, lng);
     const recentHumidity = historicalData[historicalData.length - 1]?.humidity || 60;
-    
-    // === STEP 4: ML Score ===
+
+    // === STEP 4: Satellite Data (GEE) ===
+    // Fetch real-time MODIS values to improve accuracy
+    const geeData = await getEETiles(lat, lng).catch(() => null);
+
+    // === STEP 5: Composite Risk Score ===
     const mlScore = calculateUHIScore({
       urbanTemp,
       ruralBaseline,
       humidity: recentHumidity,
       ndvi: nasaUrban.ndvi_proxy,
       historical: historicalData,
+      meanLST: geeData?.meanLST,
+      meanNDVI: geeData?.meanNDVI,
     });
 
     // === STEP 5: Regression forecast ===
@@ -70,17 +79,15 @@ export async function POST(req: Request) {
       hourlyPattern[0],
     );
 
-    // === STEP 7: Interventions & Recommendations ===
+    // === STEP 7: Interventions, Recommendations & ONNX Model ===
     const interventionResult = interventions
       ? calculateIntervention(uhiIntensity, interventions)
       : null;
 
-    const recommendations = await generateRecommendations(
-      uhiIntensity,
-      nasaUrban.ndvi_proxy,
-      mlScore.riskLevel,
-      city,
-    );
+    const [recommendations, onnxPrediction] = await Promise.all([
+      generateRecommendations(uhiIntensity, nasaUrban.ndvi_proxy, mlScore.riskLevel, city),
+      predictUHI(lat, lng, uhiIntensity),
+    ]);
 
     return NextResponse.json({
       urbanTemp,
@@ -121,6 +128,7 @@ export async function POST(req: Request) {
       peakHour,
       interventionResult,
       recommendations,
+      onnxPrediction,
       fetchedAt: new Date().toISOString(),
     });
   } catch (err: any) {

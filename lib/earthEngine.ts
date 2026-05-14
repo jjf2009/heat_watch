@@ -4,10 +4,13 @@ import fs from "fs";
 // ─── Types ───────────────────────────────────────────────────────────────────
 
 export type EETileData = {
-  lstTileUrl: string;   // MODIS Land Surface Temperature heat raster
-  ndviTileUrl: string;  // NDVI vegetation density raster
+  lstTileUrl: string;
+  ndviTileUrl: string;
   lstMin: number;
   lstMax: number;
+  // Raw values for the risk engine
+  meanLST: number;
+  meanNDVI: number;
 };
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
@@ -64,79 +67,73 @@ function getMapId(image: any, visParams: any): Promise<{ urlFormat: string }> {
 
 // ─── Main Export ─────────────────────────────────────────────────────────────
 
-/**
- * Fetches real-time LST and NDVI tile URLs from Google Earth Engine.
- * LST source:  MODIS/061/MOD11A1  (Terra Land Surface Temperature, daily)
- * NDVI source: MODIS/061/MOD13A1  (Terra NDVI, 16-day composite)
- */
 export async function getEETiles(lat: number, lng: number): Promise<EETileData> {
   await initEE();
   const earthengine = loadEE();
 
-  // Date range — last 30 days
   const now = new Date();
   const start = new Date(now);
   start.setDate(now.getDate() - 30);
   const startStr = start.toISOString().slice(0, 10);
   const endStr = now.toISOString().slice(0, 10);
 
-  // Region of interest: ~30km buffer around the city
   const point = earthengine.Geometry.Point([lng, lat]);
-  const region = point.buffer(30000); // 30 km radius
+  const region = point.buffer(30000); 
 
   // --- LST ---
   const lstCollection = earthengine
     .ImageCollection("MODIS/061/MOD11A1")
     .filterDate(startStr, endStr)
     .select("LST_Day_1km")
-    .filterBounds(region);
+    .filterBounds(point); // Sample exactly at the point
 
-  const lstImage = lstCollection
-    .median()
-    .multiply(0.02) // Scale factor: convert to Kelvin
-    .subtract(273.15); // Convert to Celsius
-
-  // Clip to region for tighter tiles
-  const lstClipped = lstImage.clip(region);
-
-  // Dynamic min/max based on season (tropical default 25–50°C)
-  const lstMin = 25;
-  const lstMax = 55;
-
-  const lstVisParams = {
-    min: lstMin,
-    max: lstMax,
-    palette: ["#313695", "#74add1", "#fed976", "#fd8d3c", "#f03b20", "#bd0026"],
-  };
-
+  const lstImage = lstCollection.median().multiply(0.02).subtract(273.15);
+  
   // --- NDVI ---
   const ndviCollection = earthengine
     .ImageCollection("MODIS/061/MOD13A1")
     .filterDate(startStr, endStr)
     .select("NDVI")
-    .filterBounds(region);
+    .filterBounds(point);
 
-  const ndviImage = ndviCollection
-    .median()
-    .multiply(0.0001) // Scale factor
-    .clip(region);
+  const ndviImage = ndviCollection.median().multiply(0.0001);
 
-  const ndviVisParams = {
-    min: 0,
-    max: 0.8,
-    palette: ["#d73027", "#fc8d59", "#fee08b", "#d9ef8b", "#91cf60", "#1a9850"],
+  // Get raw values via reduceRegion
+  const getVal = (img: any, p: any) => {
+    return new Promise<number>((resolve) => {
+      img.reduceRegion({
+        reducer: earthengine.Reducer.mean(),
+        geometry: p,
+        scale: 1000,
+      }).evaluate((result: any, err: any) => {
+        if (err || !result) return resolve(0);
+        // MODIS band names
+        const val = result["LST_Day_1km"] ?? result["NDVI"] ?? 0;
+        resolve(val);
+      });
+    });
   };
 
-  // Fetch tile URLs in parallel
-  const [lstMap, ndviMap] = await Promise.all([
-    getMapId(lstClipped, lstVisParams),
-    getMapId(ndviImage, ndviVisParams),
+  // Fetch everything in parallel
+  const [lstMap, ndviMap, meanLST, meanNDVI] = await Promise.all([
+    getMapId(lstImage.clip(region), {
+      min: 25, max: 55,
+      palette: ["#313695", "#74add1", "#fed976", "#fd8d3c", "#f03b20", "#bd0026"],
+    }),
+    getMapId(ndviImage.clip(region), {
+      min: 0, max: 0.8,
+      palette: ["#d73027", "#fc8d59", "#fee08b", "#d9ef8b", "#91cf60", "#1a9850"],
+    }),
+    getVal(lstImage, point),
+    getVal(ndviImage, point),
   ]);
 
   return {
     lstTileUrl: lstMap.urlFormat,
     ndviTileUrl: ndviMap.urlFormat,
-    lstMin,
-    lstMax,
+    lstMin: 25,
+    lstMax: 55,
+    meanLST: parseFloat(Number(meanLST || 0).toFixed(2)),
+    meanNDVI: parseFloat(Number(meanNDVI || 0).toFixed(3)),
   };
 }

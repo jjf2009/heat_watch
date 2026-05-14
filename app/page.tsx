@@ -10,6 +10,8 @@ import UHIDeltaPanel from "@/components/UHIDeltaPanel";
 import PeakHourPanel from "@/components/PeakHourPanel";
 import RegressionForecast from "@/components/RegressionForecast";
 import InterventionSimulator from "@/components/InterventionSimulator";
+import ONNXInsight from "@/components/ONNXInsight";
+
 import { generateHeatZones } from "@/lib/heatZones";
 // HeatMap uses Leaflet which needs dynamic import (no SSR)
 const HeatMap = dynamic(() => import("@/components/HeatMap"), { ssr: false });
@@ -192,6 +194,8 @@ export default function Home() {
                 ruralBaseline={data.uhiEngine.ruralBaseline}
               />
 
+              <ONNXInsight data={data} />
+
               <InterventionSimulator
                 currentUHI={data.uhiEngine.uhiIntensity}
                 lat={data.location.lat}
@@ -199,6 +203,7 @@ export default function Home() {
                 city={data.location.city}
               />
             </>
+
           ) : (
             <div className="border-2 rounded-2xl p-8 bg-white border-dashed border-gray-300 text-center">
               <div className="inline-block w-8 h-8 border-4 border-orange-400 border-t-transparent rounded-full animate-spin"></div>
@@ -272,7 +277,10 @@ function WeatherCard({ data }: { data: AppData }) {
       
       {data.mlScore && (
         <div className="mt-4 p-3 bg-orange-50 rounded-xl">
-          <p className="text-xs text-gray-500">Risk Factors Breakdown</p>
+          <p className="text-xs text-gray-500 uppercase font-bold tracking-wider">
+            🛰️ Satellite-Ground Composite Index
+          </p>
+
           <div className="mt-2 flex flex-col gap-2">
             {Object.entries(data.mlScore.factors).map(([key, val]) => (
               <div key={key} className="flex items-center gap-2">

@@ -151,14 +151,20 @@ export default function ExportPDF({ data }: Props) {
       });
       y += 8;
 
-      // ─── ML Risk Factor Breakdown ───────────────────────────────────────
+      // ─── Satellite-Ground Composite Index ──────────────────────────────
       y = checkPage(pdf, y, pageH, margin, 60);
-      y = sectionHeader(pdf, "2. Risk Factor Analysis (ML Model)", y, pageW, margin);
+      y = sectionHeader(pdf, "2. Satellite-Ground Composite Risk Index", y, pageW, margin);
+
+      pdf.setFontSize(8);
+      pdf.setFont("helvetica", "italic");
+      pdf.setTextColor(120, 120, 120);
+      pdf.text("Composite Analysis: Real-time MODIS Satellite Data + Ground Sensor Fusion", margin, y);
+      y += 8;
 
       const factors = [
-        { label: "Thermal Anomaly Factor", desc: "Temperature deviation from 30-day climatological mean", value: data.mlScore.factors.thermalFactor },
+        { label: "Thermal Index Factor", desc: "NASA MODIS LST vs. ground sensor thermal variance", value: data.mlScore.factors.thermalFactor },
         { label: "Humidity Stress Factor", desc: "Heat amplification due to atmospheric moisture content", value: data.mlScore.factors.humidityFactor },
-        { label: "Urban Density Proxy Factor", desc: "Estimated surface impermeability and built-up area density", value: data.mlScore.factors.urbanFactor },
+        { label: "Urban Intensity Factor", desc: "NASA MODIS NDVI (vegetation) vs. built-up density", value: data.mlScore.factors.urbanFactor },
       ];
       factors.forEach((f) => {
         y = checkPage(pdf, y, pageH, margin, 18);
@@ -229,7 +235,27 @@ export default function ExportPDF({ data }: Props) {
           y += 14 + detailH;
         });
       }
-      y += 5;
+      // ─── ML Climatology (ONNX) ─────────────────────────────────────────
+      const onnx = data.uhiEngine?.onnxPrediction;
+      if (onnx) {
+        y = checkPage(pdf, y, pageH, margin, 35);
+        y = sectionHeader(pdf, "4. 20-Year Climatological Baseline (ONNX ML)", y, pageW, margin);
+        
+        pdf.setFontSize(9);
+        pdf.setFont("helvetica", "normal");
+        pdf.setTextColor(30, 30, 30);
+        pdf.text(`20-Year Historical Mean UHI for ${new Date().toLocaleString("en-IN", { month: "long" })}:`, margin, y + 5);
+        pdf.setFont("helvetica", "bold");
+        pdf.text(`${onnx.historicalUHIBaseline.toFixed(2)}°C`, margin + 95, y + 5);
+        
+        pdf.setFont("helvetica", "normal");
+        pdf.text(`Current Departure from Historical Norm:`, margin, y + 11);
+        pdf.setFont("helvetica", "bold");
+        const dir = onnx.aboveBaseline ? "ABOVE" : "BELOW";
+        pdf.text(`${Math.abs(onnx.anomaly).toFixed(2)}°C ${dir} baseline`, margin + 95, y + 11);
+        
+        y += 18;
+      }
 
       // ─── Charts page ───────────────────────────────────────────────────
       const chartCanvases = Array.from(
@@ -239,7 +265,7 @@ export default function ExportPDF({ data }: Props) {
       if (chartCanvases.length > 0) {
         pdf.addPage();
         y = margin + 5;
-        y = sectionHeader(pdf, "4. Historical Data & Forecast Charts", y, pageW, margin);
+        y = sectionHeader(pdf, "5. Historical Data & Forecast Charts", y, pageW, margin);
         y += 4;
 
         const gap = 8;
@@ -363,19 +389,25 @@ export default function ExportPDF({ data }: Props) {
 
     const sortedDates = Object.keys(merged).sort();
     const header = "Date,Historical_Temp_C,Historical_Humidity_%,Forecast_Temp_C,Predicted_UHI_Delta_C";
-    const rows = sortedDates.map((date) => {
-      const r = merged[date];
-      return [
-        date,
-        r.hist_temp ?? "",
-        r.hist_humidity ?? "",
-        r.forecast_temp ?? "",
-        r.uhi_delta ?? "",
-      ].join(",");
-    });
-
-    const csvContent = [header, ...rows].join("\n");
-    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+    const csvData = [
+      `City,${data.location.city}`,
+      `Risk_Score,${data.mlScore.riskScore}`,
+      `Risk_Level,${data.mlScore.riskLevel}`,
+      `ONNX_20yr_Baseline,${data.uhiEngine.onnxPrediction?.historicalUHIBaseline ?? ""}`,
+      "",
+      header,
+      ...sortedDates.map((date) => {
+        const r = merged[date];
+        return [
+          date,
+          r.hist_temp ?? "",
+          r.hist_humidity ?? "",
+          r.forecast_temp ?? "",
+          r.uhi_delta ?? "",
+        ].join(",");
+      }),
+    ].join("\n");
+    const blob = new Blob([csvData], { type: "text/csv;charset=utf-8;" });
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.href = url;
