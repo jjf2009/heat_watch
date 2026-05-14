@@ -6,16 +6,31 @@ import LocationSearch from "@/components/LocationSearch";
 import Charts from "@/components/Charts";
 import ExportPDF from "@/components/ExportPDF";
 import { AppData, LocationData } from "@/lib/types";
-
+import { useEffect, useState } from "react";
 // HeatMap uses Leaflet which needs dynamic import (no SSR)
 const HeatMap = dynamic(() => import("@/components/HeatMap"), { ssr: false });
-
+  
 export default function Home() {
   const [data, setData] = useState<AppData | null>(null);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
-  const handleLocation = async (loc: LocationData) => {
+  useEffect(() => {
+    async function fetchData() {
+      try {
+        const res = await fetch("/api/analyze-heat?city=Mumbai");
+        const json = await res.json();
+        setData(json);
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchData();
+  }, []);
+    
+    const handleLocation = async (loc: LocationData) => {
     setLoading(true);
     setError("");
     try {
