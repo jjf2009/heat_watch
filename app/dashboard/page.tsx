@@ -344,9 +344,9 @@ function Recommendations({ data }: { data: AppData }) {
   }
 
   const priorityStyle: Record<string, string> = {
-    High: 'bg-[var(--accent-danger)] bg-opacity-20 text-[var(--accent-danger)] border-[var(--accent-danger)] border-opacity-30',
-    Medium: 'bg-[var(--accent-heat)] bg-opacity-20 text-[var(--accent-heat)] border-[var(--accent-heat)] border-opacity-30',
-    Low: 'bg-[var(--accent-cool)] bg-opacity-20 text-[var(--accent-cool)] border-[var(--accent-cool)] border-opacity-30',
+    High: 'bg-[#c41e3a] bg-opacity-20 text-white border-[#c41e3a] border-opacity-40',
+    Medium: 'bg-[#f7931e] bg-opacity-20 text-white border-[#f7931e] border-opacity-40',
+    Low: 'bg-[#1e88e5] bg-opacity-20 text-white border-[#1e88e5] border-opacity-40',
   };
 
   const iconMap: Record<string, string> = {
@@ -363,7 +363,7 @@ function Recommendations({ data }: { data: AppData }) {
     <div className="bg-[var(--surface)] rounded-2xl border border-[var(--border)] shadow p-6">
       <div className="flex items-center justify-between mb-4">
         <h3 className="font-serif font-bold text-lg text-[var(--foreground)]">🌱 AI Recommendations for City Planners</h3>
-        <span className="text-xs bg-[var(--accent-cool)] bg-opacity-20 text-[var(--accent-cool)] px-2 py-1 rounded-full font-medium">
+        <span className="text-xs bg-[#1e88e5] bg-opacity-20 text-white px-2 py-1 rounded-full font-medium border border-[#1e88e5] border-opacity-40">
           ✨ Powered by Groq AI
         </span>
       </div>

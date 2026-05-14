@@ -20,12 +20,12 @@ export default function PricingPage() {
         '5 reports per month',
         'Basic temperature analysis',
       ],
-      cta: user ? 'Upgrade to Premium' : 'Get Started',
+      cta: user ? 'Continue with free tier' : 'Get Started',
       ctaLink: '/dashboard',
     },
     {
       name: 'Professional',
-      price: 99,
+      price: '2000Rs',
       period: '/month',
       description: 'For serious climate analysts',
       features: [
@@ -40,12 +40,13 @@ export default function PricingPage() {
       ],
       highlighted: true,
       badge: 'MOST POPULAR',
-      cta: user ? 'Already Premium' : 'Upgrade Now',
+      cta: user ? 'Continue with professional' : 'Upgrade Now',
       ctaLink: user ? '/dashboard' : '/dashboard',
     },
     {
       name: 'Enterprise',
-      price: 'Custom',
+      price: '10000Rs',
+      period: '/month',
       description: 'For organizations & governments',
       features: [
         'Everything in Professional, plus:',
@@ -57,7 +58,7 @@ export default function PricingPage() {
         'Advanced analytics',
         'Multi-user collaboration',
       ],
-      cta: 'Contact Sales',
+      cta: 'Continue with enterprise',
       ctaLink: '/contact',
     },
   ];

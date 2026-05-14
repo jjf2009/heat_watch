@@ -32,16 +32,22 @@ export default function ONNXInsight({ data }: Props) {
             ONNX Neural Network trained on 20 years of MODIS data. Compares today to historical norms.
           </p>
         </div>
-        <span className="text-xs bg-[var(--accent-cool)] bg-opacity-20 text-[var(--accent-cool)] px-2 py-1 rounded-full font-medium whitespace-nowrap border border-[var(--accent-cool)] border-opacity-30">
+        <span className="text-xs bg-[#1e88e5] bg-opacity-20 text-white px-2 py-1 rounded-full font-medium whitespace-nowrap border border-[#1e88e5] border-opacity-40">
           ONNX · {new Date().toLocaleString("en-IN", { month: "short", year: "numeric" })}
         </span>
       </div>
 
       {/* Anomaly Banner */}
-      <div className={`rounded-xl border px-4 py-3 mb-5 ${directionBg}`}>
-        <p className="text-sm font-semibold text-[var(--foreground)]">
+      <div 
+        className="rounded-xl border px-4 py-3 mb-5"
+        style={{ 
+          backgroundColor: aboveBaseline ? 'rgba(196, 30, 58, 0.15)' : 'rgba(34, 197, 94, 0.15)',
+          borderColor: aboveBaseline ? 'rgba(196, 30, 58, 0.3)' : 'rgba(34, 197, 94, 0.3)'
+        }}
+      >
+        <p className="text-sm font-semibold text-white">
           Today's UHI is{" "}
-          <span className={`font-bold ${directionColor}`}>
+          <span className={`font-bold ${aboveBaseline ? 'text-[#ff4d4d]' : 'text-[#4ade80]'}`}>
             {anomalyAbs.toFixed(2)}°C {direction}
           </span>{" "}
           the 20-year historical average for this location and month.

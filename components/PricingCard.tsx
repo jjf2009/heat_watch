@@ -51,9 +51,9 @@ export default function PricingCard({
       <CardContent className="space-y-6">
         {/* Price */}
         <div className="space-y-2">
-          {typeof price === "number" ? (
+          {period ? (
             <>
-              <span className="text-4xl font-bold text-[var(--accent-fire)]">${price}</span>
+              <span className="text-4xl font-bold text-[var(--accent-fire)]">{price}</span>
               <span className="text-[var(--text-muted)] ml-2">{period}</span>
             </>
           ) : (
