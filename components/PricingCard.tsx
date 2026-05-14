@@ -1,21 +1,23 @@
-"use client"
+"use client";
 
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
-import { Check } from "lucide-react"
-import Link from "next/link"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Check } from "lucide-react";
+import Link from "next/link";
 
 interface PricingCardProps {
-  name: string
-  price: string | number
-  period?: string
-  description: string
-  features: string[]
-  highlighted?: boolean
-  badge?: string
-  cta: string
-  ctaLink: string
+  name: string;
+  price: string | number;
+  period?: string;
+  description: string;
+  features: string[];
+  highlighted?: boolean;
+  badge?: string;
+  cta: string;
+  ctaLink: string;
+  /** If provided, clicks the button via this handler instead of following the link */
+  onCtaClick?: () => void;
 }
 
 export default function PricingCard({
@@ -28,6 +30,7 @@ export default function PricingCard({
   badge,
   cta,
   ctaLink,
+  onCtaClick,
 }: PricingCardProps) {
   return (
     <Card
@@ -61,16 +64,27 @@ export default function PricingCard({
           )}
         </div>
 
-        {/* CTA Button */}
-        <Link href={ctaLink} className="block">
+        {/* CTA Button — auth-gated if onCtaClick provided */}
+        {onCtaClick ? (
           <Button
             variant={highlighted ? "default" : "outline"}
             className="w-full"
             size="lg"
+            onClick={onCtaClick}
           >
             {cta}
           </Button>
-        </Link>
+        ) : (
+          <Link href={ctaLink} className="block">
+            <Button
+              variant={highlighted ? "default" : "outline"}
+              className="w-full"
+              size="lg"
+            >
+              {cta}
+            </Button>
+          </Link>
+        )}
 
         {/* Features list */}
         <div className="space-y-3 border-t border-[var(--border)] pt-6">
@@ -83,5 +97,5 @@ export default function PricingCard({
         </div>
       </CardContent>
     </Card>
-  )
+  );
 }

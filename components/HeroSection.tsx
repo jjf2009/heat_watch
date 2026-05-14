@@ -1,10 +1,20 @@
-"use client"
+"use client";
 
-import { Button } from "@/components/ui/button"
-import Link from "next/link"
-import { Thermometer, TrendingUp, Shield } from "lucide-react"
+import { Button } from "@/components/ui/button";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { Thermometer, TrendingUp, Shield } from "lucide-react";
+import { useAuthGate } from "@/lib/useAuthGate";
+import LoginModal from "@/components/LoginModal";
 
 export default function HeroSection() {
+  const router = useRouter();
+  const { gate, loginModalOpen, onAuthSuccess, closeModal } = useAuthGate();
+
+  const handleStartFree = () => {
+    gate(() => router.push("/dashboard?plan=free"));
+  };
+
   return (
     <section className="relative min-h-screen flex items-center justify-center overflow-hidden bg-gradient-to-br from-[var(--background)] via-[var(--surface)] to-[var(--background)]">
       {/* Animated background elements */}
@@ -21,25 +31,38 @@ export default function HeroSection() {
         </div>
 
         {/* Main heading */}
-        <h1 className="text-5xl md:text-7xl font-serif font-bold mb-6 animate-fadeUp text-[var(--foreground)] leading-tight" style={{ animationDelay: "0.1s" }}>
+        <h1
+          className="text-5xl md:text-7xl font-serif font-bold mb-6 animate-fadeUp text-[var(--foreground)] leading-tight"
+          style={{ animationDelay: "0.1s" }}
+        >
           Understand Urban
-          <span className="block text-transparent bg-clip-text bg-gradient-to-r from-[var(--accent-fire)] via-[var(--accent-heat)] to-[var(--accent-fire)]">Heat Island Effects</span>
+          <span className="block text-transparent bg-clip-text bg-gradient-to-r from-[var(--accent-fire)] via-[var(--accent-heat)] to-[var(--accent-fire)]">
+            Heat Island Effects
+          </span>
         </h1>
 
         {/* Subheading */}
-        <p className="text-xl md:text-2xl text-[var(--text-muted)] max-w-3xl mx-auto mb-8 animate-fadeUp leading-relaxed" style={{ animationDelay: "0.2s" }}>
-          Advanced climate prediction powered by machine learning. Analyze urban heat patterns, predict temperature anomalies, and make data-driven decisions to combat climate change.
+        <p
+          className="text-xl md:text-2xl text-[var(--text-muted)] max-w-3xl mx-auto mb-8 animate-fadeUp leading-relaxed"
+          style={{ animationDelay: "0.2s" }}
+        >
+          Advanced climate prediction powered by machine learning. Analyze urban heat patterns,
+          predict temperature anomalies, and make data-driven decisions to combat climate change.
         </p>
 
         {/* CTA Buttons */}
-        <div className="flex flex-col sm:flex-row gap-4 justify-center mb-16 animate-fadeUp" style={{ animationDelay: "0.3s" }}>
-          <Link href="/dashboard?plan=free">
-            <Button size="lg" className="w-full sm:w-auto">
-              Start Free Analysis
-            </Button>
-          </Link>
+        <div
+          className="flex flex-col sm:flex-row gap-4 justify-center mb-16 animate-fadeUp"
+          style={{ animationDelay: "0.3s" }}
+        >
+          {/* Auth-gated: opens login if not signed in, then goes to dashboard */}
+          <Button size="lg" className="w-full sm:w-auto" onClick={handleStartFree}>
+            Start Free Analysis
+          </Button>
+
+          {/* Pricing page: public, no auth gate needed */}
           <Link href="/pricing">
-            <Button size="lg" variant="outline">
+            <Button size="lg" variant="outline" className="w-full sm:w-auto">
               View Premium Features
             </Button>
           </Link>
@@ -52,7 +75,10 @@ export default function HeroSection() {
             { icon: TrendingUp, label: "ML Predictions", desc: "Accurate 7-day forecasts" },
             { icon: Shield, label: "Verified Data", desc: "NASA satellite integration" },
           ].map((item, i) => (
-            <div key={i} className="p-6 rounded-lg border border-[var(--border)] bg-[var(--surface-light)]/50 backdrop-blur hover:border-[var(--accent-fire)] transition-all duration-300 hover:shadow-lg hover:shadow-[var(--accent-fire)]/10">
+            <div
+              key={i}
+              className="p-6 rounded-lg border border-[var(--border)] bg-[var(--surface-light)]/50 backdrop-blur hover:border-[var(--accent-fire)] transition-all duration-300 hover:shadow-lg hover:shadow-[var(--accent-fire)]/10"
+            >
               <item.icon size={32} className="text-[var(--accent-fire)] mb-3 mx-auto" />
               <h3 className="font-semibold mb-2 text-[var(--foreground)]">{item.label}</h3>
               <p className="text-sm text-[var(--text-muted)]">{item.desc}</p>
@@ -60,6 +86,13 @@ export default function HeroSection() {
           ))}
         </div>
       </div>
+
+      {/* Auth-gate login modal */}
+      <LoginModal
+        isOpen={loginModalOpen}
+        onClose={closeModal}
+        onSuccess={onAuthSuccess}
+      />
     </section>
-  )
+  );
 }

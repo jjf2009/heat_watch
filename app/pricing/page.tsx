@@ -1,12 +1,17 @@
 'use client';
 
+import { useRouter } from 'next/navigation';
 import { useAuth } from '@/lib/auth-context';
+import { useAuthGate } from '@/lib/useAuthGate';
 import PricingCard from '@/components/PricingCard';
+import LoginModal from '@/components/LoginModal';
 import { Badge } from '@/components/ui/badge';
 import { Accordion } from '@/components/ui/accordion';
 
 export default function PricingPage() {
+  const router = useRouter();
   const { user } = useAuth();
+  const { gate, loginModalOpen, onAuthSuccess, closeModal } = useAuthGate();
 
   const pricingTiers = [
     {
@@ -62,6 +67,10 @@ export default function PricingPage() {
       ctaLink: '/dashboard?plan=enterprise',
     },
   ];
+
+  // Auth-gated handler — opens login if not signed in, then goes to the chosen plan
+  const handlePlan = (planSlug: string) =>
+    gate(() => router.push(`/dashboard?plan=${planSlug}`));
 
   const faqItems = [
     {
@@ -138,7 +147,10 @@ export default function PricingPage() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           {pricingTiers.map((tier, idx) => (
             <div key={idx} className="animate-fadeUp" style={{ animationDelay: `${idx * 0.1}s` }}>
-              <PricingCard {...tier} />
+              <PricingCard
+                {...tier}
+                onCtaClick={() => handlePlan(tier.ctaLink.split('plan=')[1])}
+              />
             </div>
           ))}
         </div>
@@ -193,6 +205,13 @@ export default function PricingPage() {
         </h2>
         <Accordion items={faqItems} />
       </section>
+
+      {/* Auth gate modal */}
+      <LoginModal
+        isOpen={loginModalOpen}
+        onClose={closeModal}
+        onSuccess={onAuthSuccess}
+      />
     </div>
   );
 }
