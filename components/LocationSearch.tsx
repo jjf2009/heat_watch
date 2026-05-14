@@ -53,7 +53,7 @@ export default function LocationSearch({
           onChange={(e) => setQuery(e.target.value)}
           onKeyDown={(e) => e.key === "Enter" && searchCity()}
           placeholder="Enter city name (e.g. Mumbai, Delhi, Pune)"
-          className="flex-1 border border-gray-300 rounded-xl px-4 py-3 text-sm text-black focus:outline-none focus:ring-2 focus:ring-orange-400"
+          className="flex-1 border border-gray-300 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:ring-2 focus:ring-orange-400"
         />
         <button
           onClick={searchCity}
@@ -65,12 +65,12 @@ export default function LocationSearch({
       </div>
 
       {hasSelectedLocation ? (
-        <p className="text-sm text-gray-700">
+        <p className="text-sm text-orange-500">
           Selected:{" "}
           <span className="font-semibold">{selectedLocationLabel}</span>
         </p>
       ) : (
-        <p className="text-sm text-gray-500">
+        <p className="text-sm text-orange-500">
           Select a location, then click Analyze.
         </p>
       )}
