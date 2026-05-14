@@ -216,11 +216,11 @@ export default function HeatMap({ data }: Props) {
   ];
 
   return (
-    <div className="bg-white rounded-2xl shadow overflow-hidden">
-      <div className="p-4 border-b flex items-center justify-between flex-wrap gap-2">
+    <div className="bg-[var(--surface)] border border-[var(--border)] rounded-2xl shadow-lg overflow-hidden">
+      <div className="p-4 border-b border-[var(--border)] flex items-center justify-between flex-wrap gap-2">
         <div>
-          <h3 className="font-bold text-lg">🗺️ Urban Heat Map</h3>
-          <p className="text-sm text-gray-500 mt-0.5">
+          <h3 className="font-serif font-bold text-lg text-[var(--foreground)]">🗺️ Urban Heat Map</h3>
+          <p className="text-sm text-[var(--text-muted)] mt-0.5">
             {activeLayer === "heatzones" && "Calculated UHI heat concentration zones"}
             {activeLayer === "lst" && "Real satellite Land Surface Temperature (MODIS)"}
             {activeLayer === "ndvi" && "Real satellite vegetation density — NDVI (MODIS)"}
@@ -240,25 +240,25 @@ export default function HeatMap({ data }: Props) {
               }
               className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
                 activeLayer === btn.id
-                  ? "bg-orange-500 text-white shadow"
-                  : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                  ? "bg-[var(--accent-fire)] text-white shadow-lg"
+                  : "bg-[var(--surface-light)] text-[var(--text-muted)] hover:bg-[var(--surface)] border border-[var(--border)]"
               } disabled:opacity-40 disabled:cursor-not-allowed`}
             >
               {btn.id !== "heatzones" && eeLoading ? "⏳ Loading..." : btn.label}
             </button>
           ))}
           {eeError && (
-            <span className="text-xs text-red-500 ml-1">⚠️ {eeError}</span>
+            <span className="text-xs text-[var(--accent-danger)] ml-1">⚠️ {eeError}</span>
           )}
         </div>
       </div>
 
       <div ref={mapRef} style={{ height: "400px", width: "100%" }} />
 
-      <div className="p-4 border-t flex items-center gap-6 flex-wrap">
+      <div className="p-4 border-t border-[var(--border)] flex items-center gap-6 flex-wrap bg-[var(--surface-light)]">
         {activeLayer === "heatzones" && (
           <>
-            <span className="text-xs text-gray-500 font-medium">HEAT INTENSITY:</span>
+            <span className="text-xs text-[var(--text-muted)] font-medium">HEAT INTENSITY:</span>
             {[
               { color: "#fef08a", label: "Low" },
               { color: "#fb923c", label: "Medium" },
@@ -267,14 +267,14 @@ export default function HeatMap({ data }: Props) {
             ].map(({ color, label }) => (
               <div key={label} className="flex items-center gap-1.5">
                 <div className="w-4 h-4 rounded-full" style={{ backgroundColor: color }} />
-                <span className="text-xs text-gray-600">{label}</span>
+                <span className="text-xs text-[var(--text-muted)]">{label}</span>
               </div>
             ))}
           </>
         )}
         {activeLayer === "lst" && (
           <>
-            <span className="text-xs text-gray-500 font-medium">LAND SURFACE TEMP (°C):</span>
+            <span className="text-xs text-[var(--text-muted)] font-medium">LAND SURFACE TEMP (°C):</span>
             {[
               { color: "#313695", label: "Cool" },
               { color: "#74add1", label: "Mild" },
@@ -284,15 +284,15 @@ export default function HeatMap({ data }: Props) {
             ].map(({ color, label }) => (
               <div key={label} className="flex items-center gap-1.5">
                 <div className="w-4 h-4 rounded-full" style={{ backgroundColor: color }} />
-                <span className="text-xs text-gray-600">{label}</span>
+                <span className="text-xs text-[var(--text-muted)]">{label}</span>
               </div>
             ))}
-            <span className="text-xs text-blue-600 ml-auto">Source: MODIS MOD11A1 via GEE</span>
+            <span className="text-xs text-[var(--accent-cool)] ml-auto">Source: MODIS MOD11A1 via GEE</span>
           </>
         )}
         {activeLayer === "ndvi" && (
           <>
-            <span className="text-xs text-gray-500 font-medium">VEGETATION DENSITY (NDVI):</span>
+            <span className="text-xs text-[var(--text-muted)] font-medium">VEGETATION DENSITY (NDVI):</span>
             {[
               { color: "#d73027", label: "Bare" },
               { color: "#fee08b", label: "Sparse" },
@@ -301,10 +301,10 @@ export default function HeatMap({ data }: Props) {
             ].map(({ color, label }) => (
               <div key={label} className="flex items-center gap-1.5">
                 <div className="w-4 h-4 rounded-full" style={{ backgroundColor: color }} />
-                <span className="text-xs text-gray-600">{label}</span>
+                <span className="text-xs text-[var(--text-muted)]">{label}</span>
               </div>
             ))}
-            <span className="text-xs text-green-600 ml-auto">Source: MODIS MOD13A1 via GEE</span>
+            <span className="text-xs text-[var(--accent-cool)] ml-auto">Source: MODIS MOD13A1 via GEE</span>
           </>
         )}
       </div>

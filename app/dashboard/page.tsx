@@ -122,21 +122,21 @@ export default function Dashboard() {
   };
 
   return (
-    <main className="min-h-screen bg-gray-50">
+    <main className="min-h-screen bg-[var(--background)]">
       {/* Header */}
-      <div className="bg-gradient-to-r from-orange-500 to-red-600 text-white py-10 px-4 text-center">
-        <h1 className="text-4xl font-bold mb-2">🌡️ HeatWatch Premium Dashboard</h1>
-        <p className="text-orange-100 text-lg">
-          Advanced Urban Heat Island Analysis
+      <div className="bg-gradient-to-r from-[var(--accent-fire)] to-[var(--accent-danger)] text-[var(--foreground)] py-12 px-4 text-center border-b border-[var(--border)]">
+        <h1 className="text-4xl md:text-5xl font-serif font-bold mb-2">🌡️ Premium Dashboard</h1>
+        <p className="text-lg text-[var(--foreground)] opacity-90">
+          AI-Powered Urban Heat Island Analysis & Mitigation
         </p>
-        <p className="text-orange-200 text-sm mt-1">
-          ML-Powered Predictions, Real-time Monitoring & Intervention Strategies
+        <p className="text-sm mt-1 text-[var(--text-muted)]">
+          Real-time monitoring • ML predictions • Intervention simulator
         </p>
       </div>
 
       {/* Search */}
-      <div className="max-w-4xl mx-auto px-4 -mt-6">
-        <div className="bg-white rounded-2xl shadow-lg p-6">
+      <div className="max-w-4xl mx-auto px-4 -mt-6 relative z-10">
+        <div className="bg-[var(--surface)] rounded-2xl border border-[var(--border)] shadow-xl p-6">
           <LocationSearch
             onLocationSelected={handleLocationSelected}
             onAnalyze={runAnalysis}
@@ -154,13 +154,13 @@ export default function Dashboard() {
       {/* Loading */}
       {loading && (
         <div className="text-center mt-16">
-          <div className="inline-block w-12 h-12 border-4 border-orange-400 border-t-transparent rounded-full animate-spin"></div>
-          <p className="mt-4 text-gray-500">Analyzing heat patterns...</p>
+          <div className="inline-block w-12 h-12 border-4 border-[var(--accent-fire)] border-t-transparent rounded-full animate-spin"></div>
+          <p className="mt-4 text-[var(--text-muted)]">Analyzing heat patterns...</p>
         </div>
       )}
 
       {/* Error */}
-      {error && <p className="text-center text-red-500 mt-8">{error}</p>}
+      {error && <p className="text-center text-[var(--accent-danger)] mt-8">{error}</p>}
 
       {/* Results */}
       {data && !loading && (
@@ -172,8 +172,8 @@ export default function Dashboard() {
           {data.mlScore ? (
             <RiskBanner data={data} />
           ) : (
-            <div className="border-2 rounded-2xl p-6 bg-gray-50 border-gray-200 animate-pulse h-32 flex items-center justify-center">
-              <span className="text-gray-400">Calculating risk score...</span>
+            <div className="border-2 rounded-2xl p-6 bg-[var(--surface-light)] border-[var(--border)] animate-pulse h-32 flex items-center justify-center">
+              <span className="text-[var(--text-muted)]">Calculating risk score...</span>
             </div>
           )}
 
@@ -229,10 +229,10 @@ export default function Dashboard() {
               />
             </>
           ) : (
-            <div className="border-2 rounded-2xl p-8 bg-white border-dashed border-gray-300 text-center">
-              <div className="inline-block w-8 h-8 border-4 border-orange-400 border-t-transparent rounded-full animate-spin"></div>
-              <p className="mt-4 text-gray-500 font-medium">Loading advanced UHI analysis...</p>
-              <p className="text-sm text-gray-400 mt-1">Fetching NASA satellite data and computing regression models.</p>
+            <div className="border-2 rounded-2xl p-8 bg-[var(--surface)] border-dashed border-[var(--border)] text-center">
+              <div className="inline-block w-8 h-8 border-4 border-[var(--accent-fire)] border-t-transparent rounded-full animate-spin"></div>
+              <p className="mt-4 text-[var(--foreground)] font-medium">Loading advanced UHI analysis...</p>
+              <p className="text-sm text-[var(--text-muted)] mt-1">Fetching NASA satellite data and computing regression models.</p>
             </div>
           )}
         </div>
@@ -244,34 +244,36 @@ export default function Dashboard() {
 // Risk Banner Component
 function RiskBanner({ data }: { data: AppData }) {
   if (!data.mlScore) return null;
-  const colors = {
-    High: 'bg-red-50 border-red-300 text-red-800',
-    Medium: 'bg-yellow-50 border-yellow-300 text-yellow-800',
-    Low: 'bg-green-50 border-green-300 text-green-800',
-  };
+  const riskColor = data.mlScore.riskLevel === 'High' ? 'var(--accent-danger)' : 
+                    data.mlScore.riskLevel === 'Medium' ? 'var(--accent-heat)' : 
+                    'var(--accent-cool)';
+  const bgColor = data.mlScore.riskLevel === 'High' ? 'rgba(196, 30, 58, 0.1)' : 
+                  data.mlScore.riskLevel === 'Medium' ? 'rgba(247, 147, 30, 0.1)' : 
+                  'rgba(30, 136, 229, 0.1)';
+  const borderColor = `1px solid ${riskColor}`;
   const icons = { High: '🔴', Medium: '🟡', Low: '🟢' };
 
   return (
     <div
-      className={`border-2 rounded-2xl p-6 ${colors[data.mlScore.riskLevel]}`}
+      className="border rounded-2xl p-6 animate-fadeUp"
+      style={{ backgroundColor: bgColor, borderColor: riskColor }}
     >
       <div className="flex flex-col md:flex-row justify-between items-center gap-4">
         <div>
-          <p className="text-sm font-medium uppercase tracking-wide mb-1 text-black">
-            Urban Heat Island Risk
+          <p className="text-sm font-medium uppercase tracking-wide mb-1 text-[var(--text-muted)]">
+            Urban Heat Island Risk Assessment
           </p>
-          <h2 className="text-3xl font-bold">
+          <h2 className="text-3xl font-serif font-bold text-[var(--foreground)]">
             {icons[data.mlScore.riskLevel]} {data.location.city},{' '}
             {data.location.country}
           </h2>
-          <p className="mt-1 text-sm text-black">
-            Estimated {data.mlScore.uhi_intensity}°C warmer than surrounding
-            rural areas
+          <p className="mt-1 text-sm text-[var(--text-muted)]">
+            {data.mlScore.uhi_intensity}°C warmer than rural baseline
           </p>
         </div>
         <div className="text-center">
-          <div className="text-6xl font-black">{data.mlScore.riskScore}</div>
-          <div className="text-sm font-semibold uppercase font-black">
+          <div className="text-6xl font-black" style={{ color: riskColor }}>{data.mlScore.riskScore}</div>
+          <div className="text-sm font-semibold uppercase" style={{ color: riskColor }}>
             {data.mlScore.riskLevel} Risk
           </div>
         </div>
@@ -283,8 +285,8 @@ function RiskBanner({ data }: { data: AppData }) {
 // Weather Card
 function WeatherCard({ data }: { data: AppData }) {
   return (
-    <div className="bg-white rounded-2xl shadow p-6">
-      <h3 className="font-bold text-lg mb-4 text-black">Current Conditions</h3>
+    <div className="bg-[var(--surface)] rounded-2xl border border-[var(--border)] shadow-lg p-6">
+      <h3 className="font-serif font-bold text-lg mb-4 text-[var(--foreground)]">Current Conditions</h3>
       <div className="grid grid-cols-2 gap-4">
         {[
           { label: 'Temperature', value: `${data.weather.temp}°C` },
@@ -292,32 +294,32 @@ function WeatherCard({ data }: { data: AppData }) {
           { label: 'Humidity', value: `${data.weather.humidity}%` },
           { label: 'Wind Speed', value: `${data.weather.windSpeed} m/s` },
         ].map(({ label, value }) => (
-          <div key={label} className="bg-gray-50 rounded-xl p-3">
-            <p className="text-xs text-gray-500">{label}</p>
-            <p className="text-xl font-bold text-gray-800">{value}</p>
+          <div key={label} className="bg-[var(--surface-light)] rounded-xl p-3 border border-[var(--border)]">
+            <p className="text-xs text-[var(--text-muted)]">{label}</p>
+            <p className="text-xl font-bold text-[var(--foreground)]">{value}</p>
           </div>
         ))}
       </div>
 
       {data.mlScore && (
-        <div className="mt-4 p-3 bg-orange-50 rounded-xl">
-          <p className="text-xs text-gray-500 uppercase font-bold tracking-wider">
+        <div className="mt-4 p-3 bg-[var(--surface-light)] border border-[var(--accent-fire)] border-opacity-30 rounded-xl">
+          <p className="text-xs text-[var(--accent-fire)] uppercase font-bold tracking-wider">
             🛰️ Satellite-Ground Composite Index
           </p>
 
           <div className="mt-2 flex flex-col gap-2">
             {Object.entries(data.mlScore.factors).map(([key, val]) => (
               <div key={key} className="flex items-center gap-2">
-                <span className="text-xs w-32 capitalize text-black">
+                <span className="text-xs w-32 capitalize text-[var(--text-muted)]">
                   {key.replace('Factor', '')}
                 </span>
-                <div className="flex-1 bg-gray-200 rounded-full h-2">
+                <div className="flex-1 bg-[var(--surface)] rounded-full h-2 border border-[var(--border)]">
                   <div
-                    className="bg-orange-400 h-2 rounded-full"
+                    className="h-2 rounded-full bg-gradient-to-r from-[var(--accent-fire)] to-[var(--accent-heat)]"
                     style={{ width: `${val}%` }}
                   />
                 </div>
-                <span className="text-xs font-medium text-black">{val}</span>
+                <span className="text-xs font-medium text-[var(--foreground)]">{val}</span>
               </div>
             ))}
           </div>
@@ -334,17 +336,17 @@ function Recommendations({ data }: { data: AppData }) {
   if (!recs || recs.length === 0) {
     if (!data.uhiEngine) return null;
     return (
-      <div className="bg-white rounded-2xl shadow p-6">
-        <h3 className="font-bold text-lg mb-2 text-black">🌱 AI Recommendations</h3>
-        <p className="text-sm text-gray-400">Generating AI recommendations…</p>
+      <div className="bg-[var(--surface)] rounded-2xl border border-[var(--border)] shadow p-6">
+        <h3 className="font-serif font-bold text-lg mb-2 text-[var(--foreground)]">🌱 AI Recommendations</h3>
+        <p className="text-sm text-[var(--text-muted)]">Generating AI recommendations…</p>
       </div>
     );
   }
 
   const priorityStyle: Record<string, string> = {
-    High: 'bg-red-100 text-red-700 border-red-200',
-    Medium: 'bg-yellow-100 text-yellow-700 border-yellow-200',
-    Low: 'bg-green-100 text-green-700 border-green-200',
+    High: 'bg-[var(--accent-danger)] bg-opacity-20 text-[var(--accent-danger)] border-[var(--accent-danger)] border-opacity-30',
+    Medium: 'bg-[var(--accent-heat)] bg-opacity-20 text-[var(--accent-heat)] border-[var(--accent-heat)] border-opacity-30',
+    Low: 'bg-[var(--accent-cool)] bg-opacity-20 text-[var(--accent-cool)] border-[var(--accent-cool)] border-opacity-30',
   };
 
   const iconMap: Record<string, string> = {
@@ -358,10 +360,10 @@ function Recommendations({ data }: { data: AppData }) {
   };
 
   return (
-    <div className="bg-white rounded-2xl shadow p-6">
+    <div className="bg-[var(--surface)] rounded-2xl border border-[var(--border)] shadow p-6">
       <div className="flex items-center justify-between mb-4">
-        <h3 className="font-bold text-lg text-black">🌱 AI Recommendations for City Planners</h3>
-        <span className="text-xs bg-purple-100 text-purple-700 px-2 py-1 rounded-full font-medium">
+        <h3 className="font-serif font-bold text-lg text-[var(--foreground)]">🌱 AI Recommendations for City Planners</h3>
+        <span className="text-xs bg-[var(--accent-cool)] bg-opacity-20 text-[var(--accent-cool)] px-2 py-1 rounded-full font-medium">
           ✨ Powered by Groq AI
         </span>
       </div>
@@ -369,14 +371,14 @@ function Recommendations({ data }: { data: AppData }) {
         {recs.map((rec, i) => (
           <div
             key={i}
-            className="flex items-start gap-4 p-4 rounded-xl border border-gray-100 bg-gray-50 hover:bg-orange-50 hover:border-orange-200 transition-colors"
+            className="flex items-start gap-4 p-4 rounded-xl border border-[var(--border)] bg-[var(--surface-light)] hover:bg-[var(--surface)] hover:border-[var(--accent-fire)] transition-all"
           >
             <div className="text-2xl flex-shrink-0">
               {iconMap[rec.icon] ?? iconMap.default}
             </div>
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2 mb-1 flex-wrap">
-                <span className="font-semibold text-sm text-black">{rec.action}</span>
+                <span className="font-semibold text-sm text-[var(--foreground)]">{rec.action}</span>
                 <span
                   className={`text-xs px-2 py-0.5 rounded-full border font-medium ${
                     priorityStyle[rec.priority] ?? priorityStyle.Medium
@@ -385,8 +387,8 @@ function Recommendations({ data }: { data: AppData }) {
                   {rec.priority} Priority
                 </span>
               </div>
-              <p className="text-sm text-gray-600 leading-relaxed">{rec.detail}</p>
-              <p className="text-xs text-orange-600 font-medium mt-1.5">📉 {rec.impact}</p>
+              <p className="text-sm text-[var(--text-muted)] leading-relaxed">{rec.detail}</p>
+              <p className="text-xs text-[var(--accent-fire)] font-medium mt-1.5">📉 {rec.impact}</p>
             </div>
           </div>
         ))}

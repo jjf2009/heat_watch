@@ -99,26 +99,26 @@ export default function RegressionForecast({ historical, forecast, regression, r
                      regression.trend === "cooling" ? "text-blue-600" : "text-gray-600";
 
   return (
-    <div className="bg-white rounded-2xl shadow p-6">
+    <div className="bg-[var(--surface)] border border-[var(--border)] rounded-2xl shadow-lg p-6">
       <div className="flex justify-between items-start mb-4">
         <div>
-          <h3 className="font-bold text-lg text-black">📈 Regression Forecast</h3>
-          <p className="text-sm text-gray-500 mt-0.5">
+          <h3 className="font-serif font-bold text-lg text-[var(--foreground)]">📈 Regression Forecast</h3>
+          <p className="text-sm text-[var(--text-muted)] mt-0.5">
             Linear regression on 30-day data — projects 7-day city temperature vs rural baseline
           </p>
         </div>
         <div className="flex gap-3">
           <div className="text-center">
-            <p className="text-xs text-gray-400">TREND</p>
+            <p className="text-xs text-[var(--text-muted)]">TREND</p>
             <p className={`text-sm font-semibold ${trendColor}`}>{trendLabel}</p>
           </div>
           <div className="text-center">
-            <p className="text-xs text-gray-400">R²</p>
-            <p className="text-sm font-semibold text-gray-700">{regression.r2.toFixed(3)}</p>
+            <p className="text-xs text-[var(--text-muted)]">R²</p>
+            <p className="text-sm font-semibold text-[var(--foreground)]">{regression.r2.toFixed(3)}</p>
           </div>
           <div className="text-center">
-            <p className="text-xs text-gray-400">SLOPE</p>
-            <p className="text-sm font-semibold text-gray-700">
+            <p className="text-xs text-[var(--text-muted)]">SLOPE</p>
+            <p className="text-sm font-semibold text-[var(--foreground)]">
               {regression.slope > 0 ? "+" : ""}{regression.slope.toFixed(3)}°/day
             </p>
           </div>
@@ -127,8 +127,8 @@ export default function RegressionForecast({ historical, forecast, regression, r
 
       <Line data={chartData} options={options} />
 
-        <div className="mt-3 p-3 bg-gray-50 rounded-xl">
-          <p className="text-xs text-gray-500">
+        <div className="mt-3 p-3 bg-[var(--surface-light)] border border-[var(--border)] rounded-xl">
+          <p className="text-xs text-[var(--text-muted)]">
             <strong>Model:</strong> Ordinary Least Squares regression (inspired by isatyamks/UHI-Detector).
             Dashed red = 7-day projected urban temp. Green = rural baseline ({ruralBaseline.toFixed(1)}°C).
             The gap between them is the predicted UHI intensity.

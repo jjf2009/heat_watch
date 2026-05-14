@@ -45,7 +45,7 @@ export default function LocationSearch({
   };
 
   return (
-    <div className="flex flex-col items-center gap-4 w-full max-w-xl mx-auto">
+    <div className="flex flex-col items-center gap-4 w-full max-w-2xl mx-auto">
       <div className="flex w-full gap-2">
         <input
           type="text"
@@ -53,24 +53,24 @@ export default function LocationSearch({
           onChange={(e) => setQuery(e.target.value)}
           onKeyDown={(e) => e.key === "Enter" && searchCity()}
           placeholder="Enter city name (e.g. Mumbai, Delhi, Pune)"
-          className="flex-1 border border-gray-300 rounded-xl px-4 py-3 text-sm text-black focus:outline-none focus:ring-2 focus:ring-orange-400"
+          className="flex-1 bg-[var(--surface-light)] border border-[var(--border)] rounded-xl px-4 py-3 text-sm text-[var(--foreground)] placeholder-[var(--text-muted)] focus:outline-none focus:ring-2 focus:ring-[var(--accent-fire)]"
         />
         <button
           onClick={searchCity}
           disabled={loading}
-          className="bg-orange-500 text-white px-5 py-3 rounded-xl text-sm font-medium hover:bg-orange-600 disabled:opacity-50"
+          className="bg-[var(--accent-fire)] hover:bg-[var(--accent-heat)] text-white px-5 py-3 rounded-xl text-sm font-semibold disabled:opacity-50 transition-colors"
         >
           Find
         </button>
       </div>
 
       {hasSelectedLocation ? (
-        <p className="text-sm text-gray-700">
+        <p className="text-sm text-[var(--text-muted)]">
           Selected:{" "}
-          <span className="font-semibold">{selectedLocationLabel}</span>
+          <span className="font-semibold text-[var(--foreground)]">{selectedLocationLabel}</span>
         </p>
       ) : (
-        <p className="text-sm text-gray-500">
+        <p className="text-sm text-[var(--text-muted)]">
           Select a location, then click Analyze.
         </p>
       )}
@@ -78,7 +78,7 @@ export default function LocationSearch({
       <button
         onClick={detectFromIP}
         disabled={detecting || loading}
-        className="text-sm text-orange-600 underline underline-offset-2"
+        className="text-sm text-[var(--accent-fire)] underline underline-offset-2 hover:opacity-70 disabled:opacity-50"
       >
         {detecting ? "Detecting..." : "Use my current location"}
       </button>
@@ -86,9 +86,9 @@ export default function LocationSearch({
       <button
         onClick={onAnalyze}
         disabled={!hasSelectedLocation || loading}
-        className="bg-red-600 text-white px-8 py-3 rounded-xl text-sm font-semibold hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed"
+        className="bg-gradient-to-r from-[var(--accent-fire)] to-[var(--accent-danger)] text-white px-8 py-3 rounded-xl text-sm font-semibold hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed transition-opacity"
       >
-        {loading ? "Analyzing..." : "Analyze"}
+        {loading ? "Analyzing..." : "Analyze Heat Patterns"}
       </button>
     </div>
   );

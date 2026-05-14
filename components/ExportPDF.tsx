@@ -367,7 +367,7 @@ export default function ExportPDF({ data }: Props) {
     }
   };
 
-  // ─── CSV EXPORT ──────────────────────────────────────────────────────────────
+  // ─── CSV EXPORT ─────────────────────────��────────────────────────────────────
   const handleCSVExport = () => {
     if (!data.mlScore || !data.uhiEngine) return;
 
@@ -420,24 +420,24 @@ export default function ExportPDF({ data }: Props) {
 
   // ─── UI ──────────────────────────────────────────────────────────────────────
   return (
-    <div className="bg-white rounded-2xl shadow p-6 flex flex-col md:flex-row items-center justify-between gap-4">
+    <div className="bg-[var(--surface)] border border-[var(--border)] rounded-2xl shadow-lg p-6 flex flex-col md:flex-row items-center justify-between gap-4">
       <div>
-        <h3 className="font-bold text-lg text-black">📄 Export Data & Reports</h3>
-        <p className="text-sm text-gray-500 mt-1">
+        <h3 className="font-serif font-bold text-lg text-[var(--foreground)]">📄 Export Data & Reports</h3>
+        <p className="text-sm text-[var(--text-muted)] mt-1">
           Download an official PDF report or export raw data to CSV (GIS-ready for ArcGIS / QGIS).
         </p>
       </div>
       <div className="flex items-center gap-3">
         <button
           onClick={handleCSVExport}
-          className="bg-gray-100 hover:bg-gray-200 text-gray-700 px-5 py-3 rounded-xl font-semibold text-sm whitespace-nowrap transition-colors flex items-center gap-2 border border-gray-300"
+          className="bg-[var(--surface-light)] hover:bg-[var(--surface)] text-[var(--foreground)] px-5 py-3 rounded-xl font-semibold text-sm whitespace-nowrap transition-colors flex items-center gap-2 border border-[var(--border)]"
         >
           📊 Export CSV
         </button>
         <button
           onClick={handleExport}
           disabled={exporting}
-          className="bg-orange-500 hover:bg-orange-600 text-white px-6 py-3 rounded-xl font-semibold text-sm whitespace-nowrap disabled:opacity-50 transition-colors flex items-center gap-2"
+          className="bg-gradient-to-r from-[var(--accent-fire)] to-[var(--accent-heat)] hover:opacity-90 text-white px-6 py-3 rounded-xl font-semibold text-sm whitespace-nowrap disabled:opacity-50 transition-opacity flex items-center gap-2"
         >
           {exporting ? (
             <>

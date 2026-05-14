@@ -108,16 +108,16 @@ export default function InterventionSimulator({ currentUHI, lat, lng, city }: Pr
   ];
 
   return (
-    <div className="bg-white rounded-2xl shadow p-6">
+    <div className="bg-[var(--surface)] border border-[var(--border)] rounded-2xl shadow-lg p-6">
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h3 className="font-bold text-lg text-black">🧪 Intervention Simulator</h3>
-          <p className="text-sm text-gray-500 mt-0.5">
+          <h3 className="font-serif font-bold text-lg text-[var(--foreground)]">🧪 Intervention Simulator</h3>
+          <p className="text-sm text-[var(--text-muted)] mt-0.5">
             Model policy decisions before committing budget — adjust sliders to see projected UHI reduction
           </p>
         </div>
         {loading && (
-          <div className="w-5 h-5 border-2 border-indigo-400 border-t-transparent rounded-full animate-spin" />
+          <div className="w-5 h-5 border-2 border-[var(--accent-fire)] border-t-transparent rounded-full animate-spin" />
         )}
       </div>
 
@@ -128,10 +128,10 @@ export default function InterventionSimulator({ currentUHI, lat, lng, city }: Pr
           {sliders.map(({ key, label, unit, min, max, step, icon, description }) => (
             <div key={key}>
               <div className="flex justify-between items-center mb-1.5">
-                <span className="text-sm font-medium text-gray-700">
+                <span className="text-sm font-medium text-[var(--foreground)]">
                   {icon} {label}
                 </span>
-                <span className="text-sm font-bold text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded-lg">
+                <span className="text-sm font-bold text-[var(--accent-fire)] bg-[var(--accent-fire)] bg-opacity-10 px-2 py-0.5 rounded-lg border border-[var(--accent-fire)] border-opacity-30">
                   {interventions[key]} {unit}
                 </span>
               </div>
@@ -144,9 +144,9 @@ export default function InterventionSimulator({ currentUHI, lat, lng, city }: Pr
                 onChange={(e) =>
                   setInterventions({ ...interventions, [key]: +e.target.value })
                 }
-                className="w-full accent-indigo-500 h-2 cursor-pointer"
+                className="w-full h-2 cursor-pointer accent-[var(--accent-fire)]"
               />
-              <p className="text-xs text-gray-400 mt-1">{description}</p>
+              <p className="text-xs text-[var(--text-muted)] mt-1">{description}</p>
             </div>
           ))}
         </div>
@@ -155,36 +155,36 @@ export default function InterventionSimulator({ currentUHI, lat, lng, city }: Pr
         <div className="flex flex-col gap-4">
 
           {/* Before / After comparison */}
-          <div className="bg-gray-50 rounded-xl p-4">
-            <p className="text-xs font-medium text-gray-500 uppercase tracking-wide mb-3">
+          <div className="bg-[var(--surface-light)] border border-[var(--border)] rounded-xl p-4">
+            <p className="text-xs font-medium text-[var(--text-muted)] uppercase tracking-wide mb-3">
               UHI Intensity Comparison
             </p>
             <div className="flex items-center gap-4">
               <div className="flex-1 text-center">
-                <p className="text-xs text-gray-500 mb-1">Current</p>
-                <p className="text-3xl font-bold text-red-500">
+                <p className="text-xs text-[var(--text-muted)] mb-1">Current</p>
+                <p className="text-3xl font-bold text-[var(--accent-danger)]">
                   +{currentUHI.toFixed(1)}°C
                 </p>
-                <p className="text-xs text-gray-400">vs rural baseline</p>
+                <p className="text-xs text-[var(--text-muted)]">vs rural baseline</p>
               </div>
-              <div className="text-2xl text-gray-300">→</div>
+              <div className="text-2xl text-[var(--border)]">→</div>
               <div className="flex-1 text-center">
-                <p className="text-xs text-gray-500 mb-1">Projected</p>
+                <p className="text-xs text-[var(--text-muted)] mb-1">Projected</p>
                 <p
                   className="text-3xl font-bold"
-                  style={{ color: result ? riskColors[projectedRiskLevel as keyof typeof riskColors] : "#9ca3af" }}
+                  style={{ color: result ? riskColors[projectedRiskLevel as keyof typeof riskColors] : "var(--text-muted)" }}
                 >
                   {result ? `+${result.projectedUHI.toFixed(1)}°C` : "—"}
                 </p>
-                <p className="text-xs text-gray-400">
+                <p className="text-xs text-[var(--text-muted)]">
                   {result ? `${projectedRiskLevel} risk` : "adjust sliders"}
                 </p>
               </div>
             </div>
 
             {result && (
-              <div className="mt-3 pt-3 border-t border-gray-200 text-center">
-                <p className="text-sm font-semibold text-green-600">
+              <div className="mt-3 pt-3 border-t border-[var(--border)] text-center">
+                <p className="text-sm font-semibold text-[var(--accent-cool)]">
                   Total reduction: -{result.totalCooling.toFixed(2)}°C
                 </p>
               </div>
@@ -193,8 +193,8 @@ export default function InterventionSimulator({ currentUHI, lat, lng, city }: Pr
 
           {/* Cooling breakdown */}
           {result && (
-            <div className="bg-gray-50 rounded-xl p-4">
-              <p className="text-xs font-medium text-gray-500 uppercase tracking-wide mb-3">
+            <div className="bg-[var(--surface-light)] border border-[var(--border)] rounded-xl p-4">
+              <p className="text-xs font-medium text-[var(--text-muted)] uppercase tracking-wide mb-3">
                 Cooling Breakdown
               </p>
               <div className="flex flex-col gap-2">
@@ -205,8 +205,8 @@ export default function InterventionSimulator({ currentUHI, lat, lng, city }: Pr
                   { label: "Green roofs", val: result.breakdown.greenRoofCooling, color: "#84cc16" },
                 ].map(({ label, val, color }) => (
                   <div key={label} className="flex items-center gap-2">
-                    <span className="text-xs text-gray-600 w-36">{label}</span>
-                    <div className="flex-1 bg-gray-200 rounded-full h-1.5">
+                    <span className="text-xs text-[var(--text-muted)] w-36">{label}</span>
+                    <div className="flex-1 bg-[var(--surface)] border border-[var(--border)] rounded-full h-1.5">
                       <div
                         className="h-1.5 rounded-full"
                         style={{
@@ -215,7 +215,7 @@ export default function InterventionSimulator({ currentUHI, lat, lng, city }: Pr
                         }}
                       />
                     </div>
-                    <span className="text-xs font-medium text-gray-700 w-14 text-right">
+                    <span className="text-xs font-medium text-[var(--foreground)] w-14 text-right">
                       -{val.toFixed(2)}°C
                     </span>
                   </div>
@@ -226,8 +226,8 @@ export default function InterventionSimulator({ currentUHI, lat, lng, city }: Pr
 
           {/* Cost estimate */}
           {result && (
-            <div className="bg-amber-50 border border-amber-200 rounded-xl p-4">
-              <p className="text-xs font-medium text-amber-700 uppercase tracking-wide mb-2">
+            <div className="bg-[var(--accent-heat)] bg-opacity-10 border border-[var(--accent-heat)] border-opacity-30 rounded-xl p-4">
+              <p className="text-xs font-medium text-[var(--accent-heat)] uppercase tracking-wide mb-2">
                 Estimated Implementation Cost
               </p>
               <div className="grid grid-cols-2 gap-2">
@@ -238,16 +238,16 @@ export default function InterventionSimulator({ currentUHI, lat, lng, city }: Pr
                   { label: "Green roofs", val: result.costEstimate.greenRoofs },
                 ].map(({ label, val }) => (
                   <div key={label}>
-                    <p className="text-xs text-amber-600">{label}</p>
-                    <p className="text-sm font-semibold text-amber-800">
+                    <p className="text-xs text-[var(--accent-heat)]">{label}</p>
+                    <p className="text-sm font-semibold text-[var(--accent-heat)] opacity-90">
                       ₹{(val / 100000).toFixed(1)}L
                     </p>
                   </div>
                 ))}
               </div>
-              <div className="mt-3 pt-3 border-t border-amber-200 flex justify-between">
-                <span className="text-sm font-medium text-amber-700">Total Budget</span>
-                <span className="text-sm font-bold text-amber-800">
+              <div className="mt-3 pt-3 border-t border-[var(--accent-heat)] border-opacity-30 flex justify-between">
+                <span className="text-sm font-medium text-[var(--accent-heat)]">Total Budget</span>
+                <span className="text-sm font-bold text-[var(--accent-heat)] opacity-90">
                   ₹{(totalCost / 10000000).toFixed(2)} Cr
                 </span>
               </div>
@@ -257,7 +257,7 @@ export default function InterventionSimulator({ currentUHI, lat, lng, city }: Pr
           {/* Reset button */}
           <button
             onClick={() => setInterventions({ treeCoverIncrease: 0, reflectiveSurfaces: 0, waterBodies: 0, greenRoofs: 0 })}
-            className="text-sm text-gray-400 underline underline-offset-2 text-center"
+            className="text-sm text-[var(--text-muted)] underline underline-offset-2 text-center hover:text-[var(--foreground)]"
           >
             Reset all interventions
           </button>
