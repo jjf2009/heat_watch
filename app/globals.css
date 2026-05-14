@@ -24,3 +24,35 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+/* Smooth transitions everywhere */
+* {
+  transition: background-color 0.15s ease, border-color 0.15s ease, opacity 0.15s ease;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: #f1f5f9; }
+::-webkit-scrollbar-thumb { background: #f97316; border-radius: 3px; }
+
+/* Map container fix */
+.leaflet-container {
+  border-radius: 0 !important;
+}
+
+/* Animate cards in */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+#report-content > * {
+  animation: fadeUp 0.4s ease forwards;
+}
+
+#report-content > *:nth-child(1) { animation-delay: 0.05s; }
+#report-content > *:nth-child(2) { animation-delay: 0.1s; }
+#report-content > *:nth-child(3) { animation-delay: 0.15s; }
+#report-content > *:nth-child(4) { animation-delay: 0.2s; }
+#report-content > *:nth-child(5) { animation-delay: 0.25s; }
+#report-content > *:nth-child(6) { animation-delay: 0.3s; }
