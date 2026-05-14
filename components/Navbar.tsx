@@ -12,57 +12,61 @@ export default function Navbar() {
   const router = useRouter();
 
   return (
-    <nav className="sticky top-0 z-50 w-full backdrop-blur-lg bg-[#1A1A2E]/80 border-b border-[#F97316]/20">
+    <nav className="nm-nav sticky top-0 z-50 w-full border-b border-orange-500/10">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-20">
           {/* Logo (Left) */}
           <div className="flex items-center flex-1">
             <Link href="/" className="flex items-center gap-2">
-              <span className="text-3xl font-bold text-white tracking-tight">
+              <span className="text-3xl font-bold text-white tracking-tight drop-shadow-[0_0_12px_rgba(249,115,22,0.4)]">
                 Heat<span className="text-orange-500">Watch</span>
               </span>
             </Link>
           </div>
-          
+
           {/* Nav Links (Center) */}
-          <div className="hidden md:flex flex-1 justify-center items-center space-x-8">
-            <Link href="/" className="text-orange-500 hover:text-white px-3 py-2 rounded-md text-lg font-medium transition-colors">
+          <div className="hidden md:flex flex-1 justify-center items-center space-x-2">
+            <Link href="/" className="text-orange-500 hover:text-white px-4 py-2 rounded-xl text-lg font-medium transition-colors hover:bg-white/5">
               Home
             </Link>
-            <Link href="/about" className="text-white hover:text-orange-500 px-3 py-2 rounded-md text-lg font-medium transition-colors">
+            <Link href="/about" className="text-white hover:text-orange-500 px-4 py-2 rounded-xl text-lg font-medium transition-colors hover:bg-white/5">
               About
             </Link>
-            
+            <Link href="/report-heat" className="text-white hover:text-orange-500 px-4 py-2 rounded-xl text-lg font-medium transition-colors hover:bg-white/5 flex items-center gap-1.5">
+              <span className="text-sm">📍</span> Community
+            </Link>
+
             <div className="relative">
               <button
                 onMouseEnter={() => setIsServicesOpen(true)}
                 onMouseLeave={() => setIsServicesOpen(false)}
-                className="flex items-center text-white hover:text-orange-500 px-3 py-2 rounded-md text-lg font-medium transition-colors"
+                className="flex items-center text-white hover:text-orange-500 px-4 py-2 rounded-xl text-lg font-medium transition-colors hover:bg-white/5"
               >
                 Services
-                <ChevronDown className={`ml-1 w-5 h-5 transition-transform ${isServicesOpen ? "rotate-180" : ""}`} />
+                <ChevronDown className={`ml-1 w-5 h-5 transition-transform duration-200 ${isServicesOpen ? "rotate-180" : ""}`} />
               </button>
 
               <AnimatePresence>
                 {isServicesOpen && (
                   <motion.div
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: 10 }}
+                    initial={{ opacity: 0, y: 8, scale: 0.97 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    exit={{ opacity: 0, y: 8, scale: 0.97 }}
+                    transition={{ duration: 0.18 }}
                     onMouseEnter={() => setIsServicesOpen(true)}
                     onMouseLeave={() => setIsServicesOpen(false)}
-                    className="absolute left-1/2 -translate-x-1/2 mt-2 w-48 rounded-md shadow-lg bg-[#1A1A2E] ring-1 ring-black ring-opacity-5 overflow-hidden border border-orange-500/20"
+                    className="nm-dropdown absolute left-1/2 -translate-x-1/2 mt-2 w-48 overflow-hidden"
                   >
                     <div className="py-1">
                       <button
                         onClick={() => router.push("/login")}
-                        className="block w-full text-left px-4 py-2 text-base text-white hover:bg-orange-500/10 hover:text-orange-500 transition-colors"
+                        className="block w-full text-left px-4 py-3 text-base text-white hover:bg-orange-500/10 hover:text-orange-500 transition-colors"
                       >
                         Simulation
                       </button>
                       <button
                         onClick={() => router.push("/login")}
-                        className="block w-full text-left px-4 py-2 text-base text-white hover:bg-orange-500/10 hover:text-orange-500 transition-colors"
+                        className="block w-full text-left px-4 py-3 text-base text-white hover:bg-orange-500/10 hover:text-orange-500 transition-colors"
                       >
                         Planning
                       </button>
@@ -74,26 +78,26 @@ export default function Navbar() {
           </div>
 
           {/* Action Buttons (Right) */}
-          <div className="hidden md:flex flex-1 justify-end items-center space-x-4">
-            <button 
+          <div className="hidden md:flex flex-1 justify-end items-center space-x-3">
+            <button
               onClick={() => router.push("/login")}
-              className="bg-orange-500 hover:bg-orange-600 text-white px-6 py-2 rounded-full text-lg font-medium transition-colors"
+              className="nm-btn-orange text-white px-6 py-2.5 rounded-full text-lg font-medium"
             >
               Login
             </button>
-            <button 
+            <button
               onClick={() => router.push("/pricing")}
-              className="bg-white hover:bg-gray-200 text-[#1A1A2E] px-6 py-2 rounded-full text-lg font-bold transition-colors shadow-lg"
+              className="nm-btn-white text-[#1A1A2E] px-6 py-2.5 rounded-full text-lg font-bold"
             >
               Get Started
             </button>
           </div>
 
-          {/* Mobile Menu Toggle */}
+          {/* Mobile Toggle */}
           <div className="-mr-2 flex md:hidden items-center justify-end flex-1">
             <button
               onClick={() => setIsOpen(!isOpen)}
-              className="inline-flex items-center justify-center p-2 rounded-md text-white hover:text-orange-500 focus:outline-none"
+              className="inline-flex items-center justify-center p-2 rounded-xl nm-card text-white hover:text-orange-500 focus:outline-none transition-colors"
             >
               {isOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
             </button>
@@ -108,40 +112,43 @@ export default function Navbar() {
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: "auto" }}
             exit={{ opacity: 0, height: 0 }}
-            className="md:hidden bg-[#1A1A2E] border-b border-orange-500/20 overflow-hidden"
+            className="md:hidden bg-[#14142A] border-t border-orange-500/10 overflow-hidden"
           >
-            <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3">
-              <Link href="/" className="text-orange-500 block px-3 py-2 rounded-md text-lg font-medium">
+            <div className="px-4 pt-3 pb-5 space-y-1">
+              <Link href="/" className="text-orange-500 block px-3 py-2.5 rounded-xl text-lg font-medium hover:bg-white/5">
                 Home
               </Link>
-              <Link href="/about" className="text-white hover:text-orange-500 block px-3 py-2 rounded-md text-lg font-medium">
+              <Link href="/about" className="text-white hover:text-orange-500 block px-3 py-2.5 rounded-xl text-lg font-medium hover:bg-white/5">
                 About
               </Link>
-              <div className="space-y-1 pl-4">
-                <div className="text-gray-400 px-3 py-2 text-base uppercase tracking-wider">Services</div>
+              <Link href="/report-heat" className="text-white hover:text-orange-500 block px-3 py-2.5 rounded-xl text-lg font-medium hover:bg-white/5">
+                📍 Community
+              </Link>
+              <div className="space-y-1 pl-2">
+                <div className="text-gray-400 px-3 py-2 text-sm uppercase tracking-wider">Services</div>
                 <button
                   onClick={() => router.push("/login")}
-                  className="text-white hover:text-orange-500 block px-3 py-2 rounded-md text-lg font-medium w-full text-left"
+                  className="text-white hover:text-orange-500 block px-3 py-2.5 rounded-xl text-lg font-medium w-full text-left hover:bg-white/5"
                 >
                   Simulation
                 </button>
                 <button
                   onClick={() => router.push("/login")}
-                  className="text-white hover:text-orange-500 block px-3 py-2 rounded-md text-lg font-medium w-full text-left"
+                  className="text-white hover:text-orange-500 block px-3 py-2.5 rounded-xl text-lg font-medium w-full text-left hover:bg-white/5"
                 >
                   Planning
                 </button>
               </div>
               <div className="pt-4 flex flex-col gap-3 px-3">
-                <button 
+                <button
                   onClick={() => router.push("/login")}
-                  className="bg-orange-500 hover:bg-orange-600 text-white w-full py-3 rounded-full text-lg font-medium transition-colors"
+                  className="nm-btn-orange text-white w-full py-3 rounded-full text-lg font-medium"
                 >
                   Login
                 </button>
-                <button 
+                <button
                   onClick={() => router.push("/pricing")}
-                  className="bg-white hover:bg-gray-200 text-[#1A1A2E] w-full py-3 rounded-full text-lg font-bold transition-colors"
+                  className="nm-btn-white text-[#1A1A2E] w-full py-3 rounded-full text-lg font-bold"
                 >
                   Get Started
                 </button>

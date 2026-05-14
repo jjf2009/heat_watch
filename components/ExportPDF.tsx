@@ -284,10 +284,10 @@ export default function ExportPDF({ data }: Props) {
   };
 
   return (
-    <div className="bg-white rounded-2xl shadow p-6 flex flex-col md:flex-row items-center justify-between gap-4">
+    <div className="nm-card p-6 flex flex-col md:flex-row items-center justify-between gap-4">
       <div>
-        <h3 className="font-bold text-lg text-black">📄 Export Full Report</h3>
-        <p className="text-sm text-gray-500 mt-1">
+        <h3 className="font-bold text-lg text-white">📄 Export Full Report</h3>
+        <p className="text-sm text-gray-400 mt-1">
           Download a professional PDF report for {data.location.city} — includes
           risk score, ML analysis, charts, and recommendations.
         </p>
@@ -295,12 +295,12 @@ export default function ExportPDF({ data }: Props) {
       <button
         onClick={handleExport}
         disabled={exporting}
-        className="bg-orange-500 hover:bg-orange-600 text-white px-6 py-3 rounded-xl font-semibold text-sm whitespace-nowrap disabled:opacity-50 transition-colors flex items-center gap-2"
+        className="nm-btn-orange text-white px-6 py-3 rounded-xl font-semibold text-sm whitespace-nowrap disabled:opacity-50 flex items-center gap-2"
       >
         {exporting ? (
           <>
             <span className="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-            Generating PDF...
+            Generating PDF…
           </>
         ) : (
           "⬇️ Download Report"

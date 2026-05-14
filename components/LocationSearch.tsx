@@ -1,6 +1,5 @@
 "use client";
 import { useState } from "react";
-import axios from "axios";
 import { LocationData } from "@/lib/types";
 import { searchCityLocation, detectLocationFromIP } from "@/lib/location";
 
@@ -33,7 +32,6 @@ export default function LocationSearch({
 
   const detectFromIP = async () => {
     setDetecting(true);
-
     try {
       const location = await detectLocationFromIP();
       onLocationSelected(location);
@@ -45,50 +43,53 @@ export default function LocationSearch({
   };
 
   return (
-    <div className="flex flex-col items-center gap-4 w-full max-w-xl mx-auto">
-      <div className="flex w-full gap-2">
+    <div className="flex flex-col items-center gap-5 w-full max-w-xl mx-auto">
+      {/* Search row */}
+      <div className="flex w-full gap-3">
         <input
           type="text"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           onKeyDown={(e) => e.key === "Enter" && searchCity()}
           placeholder="Enter city name (e.g. Mumbai, Delhi, Pune)"
-          className="flex-1 border border-gray-300 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:ring-2 focus:ring-orange-400"
+          className="nm-input flex-1 px-4 py-3 text-sm"
         />
         <button
           onClick={searchCity}
           disabled={loading}
-          className="bg-orange-500 text-white px-5 py-3 rounded-xl text-sm font-medium hover:bg-orange-600 disabled:opacity-50"
+          className="nm-btn-orange text-white px-6 py-3 rounded-xl text-sm font-semibold disabled:opacity-50"
         >
           Find
         </button>
       </div>
 
+      {/* Location status */}
       {hasSelectedLocation ? (
-        <p className="text-sm text-orange-500">
-          Selected:{" "}
-          <span className="font-semibold">{selectedLocationLabel}</span>
+        <p className="text-sm text-orange-400 font-medium">
+          📍 Selected: <span className="font-bold text-orange-300">{selectedLocationLabel}</span>
         </p>
       ) : (
-        <p className="text-sm text-orange-500">
+        <p className="text-sm text-gray-400">
           Select a location, then click Analyze.
         </p>
       )}
 
+      {/* Detect location */}
       <button
         onClick={detectFromIP}
         disabled={detecting || loading}
-        className="text-sm text-orange-600 underline underline-offset-2"
+        className="nm-btn-ghost text-sm text-orange-500 hover:text-orange-400 underline underline-offset-2 disabled:opacity-50"
       >
-        {detecting ? "Detecting..." : "Use my current location"}
+        {detecting ? "Detecting…" : "📡 Use my current location"}
       </button>
 
+      {/* Analyze */}
       <button
         onClick={onAnalyze}
         disabled={!hasSelectedLocation || loading}
-        className="bg-red-600 text-white px-8 py-3 rounded-xl text-sm font-semibold hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed"
+        className="nm-btn-orange text-white px-10 py-3.5 rounded-2xl text-base font-bold disabled:opacity-40 disabled:cursor-not-allowed w-full"
       >
-        {loading ? "Analyzing..." : "Analyze"}
+        {loading ? "Analyzing…" : "🔍 Analyze"}
       </button>
     </div>
   );
