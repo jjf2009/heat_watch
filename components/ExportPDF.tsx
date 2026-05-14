@@ -229,7 +229,7 @@ export default function ExportPDF({ data }: Props) {
   return (
     <div className="bg-white rounded-2xl shadow p-6 flex flex-col md:flex-row items-center justify-between gap-4">
       <div>
-        <h3 className="font-bold text-lg">📄 Export Full Report</h3>
+        <h3 className="font-bold text-lg text-black">📄 Export Full Report</h3>
         <p className="text-sm text-gray-500 mt-1">
           Download a professional PDF report for {data.location.city} — includes risk score, ML analysis, charts, and recommendations.
         </p>

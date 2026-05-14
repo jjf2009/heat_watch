@@ -2,7 +2,10 @@
 import { useState } from "react";
 import axios from "axios";
 import { LocationData } from "@/lib/types";
-
+import {
+  searchCityLocation,
+  detectLocationFromIP,
+} from "@/lib/location";
 type Props = {
   onLocation: (loc: LocationData) => void;
   loading: boolean;
@@ -12,29 +15,27 @@ export default function LocationSearch({ onLocation, loading }: Props) {
   const [query, setQuery] = useState("");
   const [detecting, setDetecting] = useState(false);
 
-  const searchCity = async () => {
-    if (!query.trim()) return;
-    try {
-      const res = await axios.get(`https://nominatim.openstreetmap.org/search`, {
-        params: { q: query, format: "json", limit: 1 },
-      });
-      if (res.data.length === 0) return alert("City not found");
-      const { lat, lon, display_name } = res.data[0];
-      const city = display_name.split(",")[0];
-      const country = display_name.split(",").slice(-1)[0].trim();
-      onLocation({ city, country, lat: parseFloat(lat), lng: parseFloat(lon) });
-    } catch { alert("Search failed"); }
-  };
+const searchCity = async () => {
+  try {
+    const location = await searchCityLocation(query);
+    onLocation(location);
+  } catch (err: any) {
+    alert(err.message || "Search failed");
+  }
+};
 
-  const detectFromIP = async () => {
-    setDetecting(true);
-    try {
-      const res = await axios.get("https://ipapi.co/json/");
-      const { city, country_name, latitude, longitude } = res.data;
-      onLocation({ city, country: country_name, lat: latitude, lng: longitude });
-    } catch { alert("Location detection failed"); }
-    finally { setDetecting(false); }
-  };
+const detectFromIP = async () => {
+  setDetecting(true);
+
+  try {
+    const location = await detectLocationFromIP();
+    onLocation(location);
+  } catch {
+    alert("Location detection failed");
+  } finally {
+    setDetecting(false);
+  }
+};
 
   return (
     <div className="flex flex-col items-center gap-4 w-full max-w-xl mx-auto">
