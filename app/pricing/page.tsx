@@ -6,7 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { Accordion } from '@/components/ui/accordion';
 
 export default function PricingPage() {
-  const { user, plan } = useAuth();
+  const { user } = useAuth();
 
   const pricingTiers = [
     {

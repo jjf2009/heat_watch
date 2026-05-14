@@ -23,23 +23,23 @@ export default function ONNXInsight({ data }: Props) {
   const baselineWidth = Math.min(100, (historicalUHIBaseline / maxBar) * 100);
 
   return (
-    <div className="bg-white rounded-2xl shadow p-6">
+    <div className="bg-[var(--surface)] border border-[var(--border)] rounded-2xl shadow-lg p-6">
       {/* Header */}
       <div className="flex items-center justify-between mb-4">
         <div>
-          <h3 className="font-bold text-lg text-black">🤖 Climatology Model — 20-Year UHI Baseline</h3>
-          <p className="text-sm text-gray-500 mt-0.5">
+          <h3 className="font-serif font-bold text-lg text-[var(--foreground)]">🤖 Climatology Model — 20-Year UHI Baseline</h3>
+          <p className="text-sm text-[var(--text-muted)] mt-0.5">
             ONNX Neural Network trained on 20 years of MODIS data. Compares today to historical norms.
           </p>
         </div>
-        <span className="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded-full font-medium whitespace-nowrap">
+        <span className="text-xs bg-[var(--accent-cool)] bg-opacity-20 text-[var(--accent-cool)] px-2 py-1 rounded-full font-medium whitespace-nowrap border border-[var(--accent-cool)] border-opacity-30">
           ONNX · {new Date().toLocaleString("en-IN", { month: "short", year: "numeric" })}
         </span>
       </div>
 
       {/* Anomaly Banner */}
       <div className={`rounded-xl border px-4 py-3 mb-5 ${directionBg}`}>
-        <p className="text-sm font-semibold text-gray-800">
+        <p className="text-sm font-semibold text-[var(--foreground)]">
           Today's UHI is{" "}
           <span className={`font-bold ${directionColor}`}>
             {anomalyAbs.toFixed(2)}°C {direction}
@@ -53,14 +53,14 @@ export default function ONNXInsight({ data }: Props) {
         {/* Current UHI */}
         <div>
           <div className="flex items-center justify-between mb-1.5">
-            <span className="text-xs font-semibold text-gray-600 uppercase tracking-wide">
+            <span className="text-xs font-semibold text-[var(--text-muted)] uppercase tracking-wide">
               Current UHI Intensity (Real-time)
             </span>
-            <span className="text-sm font-bold text-gray-900">{currentUHI.toFixed(2)}°C</span>
+            <span className="text-sm font-bold text-[var(--foreground)]">{currentUHI.toFixed(2)}°C</span>
           </div>
-          <div className="h-3 bg-gray-100 rounded-full overflow-hidden">
+          <div className="h-3 bg-[var(--surface-light)] border border-[var(--border)] rounded-full overflow-hidden">
             <div
-              className="h-full rounded-full bg-orange-500 transition-all duration-700"
+              className="h-full rounded-full bg-[var(--accent-fire)] transition-all duration-700"
               style={{ width: `${currentWidth}%` }}
             />
           </div>
@@ -69,14 +69,14 @@ export default function ONNXInsight({ data }: Props) {
         {/* 20-year baseline */}
         <div>
           <div className="flex items-center justify-between mb-1.5">
-            <span className="text-xs font-semibold text-gray-600 uppercase tracking-wide">
+            <span className="text-xs font-semibold text-[var(--text-muted)] uppercase tracking-wide">
               20-Year Climatological Baseline (ONNX Model)
             </span>
-            <span className="text-sm font-bold text-gray-900">{historicalUHIBaseline.toFixed(2)}°C</span>
+            <span className="text-sm font-bold text-[var(--foreground)]">{historicalUHIBaseline.toFixed(2)}°C</span>
           </div>
-          <div className="h-3 bg-gray-100 rounded-full overflow-hidden">
+          <div className="h-3 bg-[var(--surface-light)] border border-[var(--border)] rounded-full overflow-hidden">
             <div
-              className="h-full rounded-full bg-blue-400 transition-all duration-700"
+              className="h-full rounded-full bg-[var(--accent-cool)] transition-all duration-700"
               style={{ width: `${baselineWidth}%` }}
             />
           </div>
@@ -84,14 +84,14 @@ export default function ONNXInsight({ data }: Props) {
       </div>
 
       {/* Legend */}
-      <div className="flex items-center gap-5 mt-4 pt-3 border-t border-gray-100">
+      <div className="flex items-center gap-5 mt-4 pt-3 border-t border-[var(--border)]">
         <div className="flex items-center gap-1.5">
-          <div className="w-3 h-3 rounded-full bg-orange-500" />
-          <span className="text-xs text-gray-500">Current (real-time sensors)</span>
+          <div className="w-3 h-3 rounded-full bg-[var(--accent-fire)]" />
+          <span className="text-xs text-[var(--text-muted)]">Current (real-time sensors)</span>
         </div>
         <div className="flex items-center gap-1.5">
-          <div className="w-3 h-3 rounded-full bg-blue-400" />
-          <span className="text-xs text-gray-500">Baseline (ONNX · 20-yr mean)</span>
+          <div className="w-3 h-3 rounded-full bg-[var(--accent-cool)]" />
+          <span className="text-xs text-[var(--text-muted)]">Baseline (ONNX · 20-yr mean)</span>
         </div>
       </div>
     </div>

@@ -90,8 +90,8 @@ function HistoricalChart({ data }: { data: AppData }) {
   };
 
   return (
-    <div className="bg-white rounded-2xl shadow p-5">
-      <h2 className="text-xl font-bold mb-4 text-gray-800">📈 30-Day Temperature History</h2>
+    <div className="bg-[var(--surface)] border border-[var(--border)] rounded-2xl shadow-lg p-5">
+      <h2 className="text-xl font-serif font-bold mb-4 text-[var(--foreground)]">📈 30-Day Temperature History</h2>
       <Line data={chartData} options={options} />
     </div>
   );
@@ -143,8 +143,8 @@ function ForecastChart({ data }: { data: AppData }) {
   };
 
   return (
-    <div className="bg-white rounded-2xl shadow p-5">
-      <h2 className="text-xl font-bold mb-4 text-gray-800">🌤️ 5-Day Forecast</h2>
+    <div className="bg-[var(--surface)] border border-[var(--border)] rounded-2xl shadow-lg p-5">
+      <h2 className="text-xl font-serif font-bold mb-4 text-[var(--foreground)]">🌤️ 5-Day Forecast</h2>
       <Bar data={chartData} options={options} />
     </div>
   );
@@ -191,8 +191,8 @@ function RiskRadarChart({ data }: { data: AppData }) {
   };
 
   return (
-    <div className="bg-white rounded-2xl shadow p-5">
-      <h2 className="text-xl font-bold mb-4 text-gray-800">🎯 ML Risk Factor Analysis</h2>
+    <div className="bg-[var(--surface)] border border-[var(--border)] rounded-2xl shadow-lg p-5">
+      <h2 className="text-xl font-serif font-bold mb-4 text-[var(--foreground)]">🎯 ML Risk Factor Analysis</h2>
       <Radar data={chartData} options={options} />
     </div>
   );
@@ -215,15 +215,15 @@ function HeatTrendSummary({ data }: { data: AppData }) {
   const uhiIntensity = data?.mlScore?.uhi_intensity || 0;
 
   const StatCard = ({ title, value, icon }: { title: string, value: string | number, icon: string }) => (
-    <div className="bg-gray-50 rounded-xl p-3 flex flex-col justify-center">
-      <span className="text-gray-500 text-xs font-semibold uppercase tracking-wider mb-1">{icon} {title}</span>
-      <span className="text-xl font-bold text-gray-800">{value}</span>
+    <div className="bg-[var(--surface-light)] border border-[var(--border)] rounded-xl p-3 flex flex-col justify-center">
+      <span className="text-[var(--text-muted)] text-xs font-semibold uppercase tracking-wider mb-1">{icon} {title}</span>
+      <span className="text-xl font-bold text-[var(--foreground)]">{value}</span>
     </div>
   );
 
   return (
-    <div className="bg-white rounded-2xl shadow p-5">
-      <h2 className="text-xl font-bold mb-4 text-gray-800">📋 Heat Summary</h2>
+    <div className="bg-[var(--surface)] border border-[var(--border)] rounded-2xl shadow-lg p-5">
+      <h2 className="text-xl font-serif font-bold mb-4 text-[var(--foreground)]">📋 Heat Summary</h2>
       <div className="grid grid-cols-2 gap-3">
         <StatCard title="30-Day Avg" value={`${avgTemp.toFixed(1)}°C`} icon="📊" />
         <StatCard title="Period High" value={`${maxTemp.toFixed(1)}°C`} icon="🔥" />
