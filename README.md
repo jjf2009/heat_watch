@@ -63,7 +63,7 @@ HeatWatch is a Next.js application that fuses real-time NASA MODIS satellite dat
 6. Click "Export PDF" to generate and download a professional client-side report.
 
 ## Screenshots
-![HeatWatch Screenshot](./screenshot.jpeg)
+![HeatWatch Screenshot](./screenshot.jpg)
 
 ## Demo Video
 *[Watch the demo video](https://youtu.be/WJ-XbMYJ0LE)*
