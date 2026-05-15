@@ -1,0 +1,23 @@
+# HeatWatch 🌡️
+> Science-Grade Urban Heat Island Prediction Platform
+
+## Core Files & Architecture
+- `app/layout.tsx` & `app/page.tsx`: Core UI application and Dashboard.
+- `app/report/page.tsx`: Dedicated report viewing and generation page.
+- `app/api/uhi-engine/route.ts`: ML prediction engine API integrating weather and NASA data.
+- `app/api/weather/route.ts`: OpenWeatherMap live data.
+- `app/api/historical/route.ts`: Open-Meteo 30-day historical fetch.
+- `app/api/ee-tiles/route.ts` & `app/api/map-data/route.ts`: Google Earth Engine geospatial tile servers.
+- `lib/firebase.ts` & `lib/auth-context.tsx` & `lib/useAuthGate.ts`: Firebase authentication integration.
+- `components/ChatBot.tsx`: AI Chatbot interface for UHI interactions.
+- `components/ReportMap.tsx`: Static reporting map integration.
+- `lib/onnxModel.ts`: Wrapper for ONNX Runtime Node to run the `uhi_model.onnx` predictions.
+- `lib/mlScore.ts` & `lib/heatZones.ts`: Risk score heuristic algorithms.
+- `lib/nasa.ts` & `lib/earthEngine.ts`: MODIS satellite data processors.
+
+## Key Concepts
+- **Authentication:** Using Firebase v12 and Next-Auth for securing report generations.
+- **Satellite-Ground Composite Index:** Fusing real-time ground telemetry with NASA MODIS satellite data.
+- **Science-Grade Climatological Predictions:** Using `onnxruntime-node` to evaluate baseline heat risks.
+- **AI Chatbot Integration:** `ChatBot.tsx` handles natural language queries about Heat Island phenomena.
+- **Client-Side PDF Exports:** Generating authoritative PDF reports using `jsPDF` and `html2canvas` directly in the browser via `components/ExportPDF.tsx`.
