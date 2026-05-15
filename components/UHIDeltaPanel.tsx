@@ -58,14 +58,20 @@ export default function UHIDeltaPanel({
       {/* Main comparison */}
       <div className="grid grid-cols-3 gap-4 mb-6">
         {/* Rural baseline */}
-        <div className="bg-[var(--accent-cool)] bg-opacity-10 border border-[var(--accent-cool)] border-opacity-30 rounded-xl p-4 text-center">
-          <p className="text-xs font-medium text-[var(--accent-cool)] uppercase tracking-wide mb-1">
+        <div 
+          className="rounded-xl p-4 text-center border"
+          style={{ 
+            backgroundColor: 'rgba(30, 136, 229, 0.15)', 
+            borderColor: 'rgba(30, 136, 229, 0.3)' 
+          }}
+        >
+          <p className="text-xs font-bold uppercase tracking-wide mb-1 text-[#4dabf7]">
             Rural Baseline
           </p>
-          <p className="text-3xl font-bold text-[var(--accent-cool)]">
+          <p className="text-3xl font-black text-white">
             {ruralBaseline.toFixed(1)}°C
           </p>
-          <p className="text-xs text-[var(--accent-cool)] opacity-70 mt-1">
+          <p className="text-xs text-white opacity-60 mt-1">
             4-point avg · 25km radius
           </p>
         </div>
@@ -93,14 +99,20 @@ export default function UHIDeltaPanel({
         </div>
 
         {/* Urban center */}
-        <div className="bg-[var(--accent-danger)] bg-opacity-10 border border-[var(--accent-danger)] border-opacity-30 rounded-xl p-4 text-center">
-          <p className="text-xs font-medium text-[var(--accent-danger)] uppercase tracking-wide mb-1">
+        <div 
+          className="rounded-xl p-4 text-center border"
+          style={{ 
+            backgroundColor: 'rgba(196, 30, 58, 0.15)', 
+            borderColor: 'rgba(196, 30, 58, 0.3)' 
+          }}
+        >
+          <p className="text-xs font-bold uppercase tracking-wide mb-1 text-[#ff4d4d]">
             {city} Center
           </p>
-          <p className="text-3xl font-bold text-[var(--accent-danger)]">
+          <p className="text-3xl font-black text-white">
             {urbanTemp.toFixed(1)}°C
           </p>
-          <p className="text-xs text-[var(--accent-danger)] opacity-70 mt-1">live · OpenWeatherMap</p>
+          <p className="text-xs text-white opacity-60 mt-1">live · OpenWeatherMap</p>
         </div>
       </div>
 

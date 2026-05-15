@@ -131,7 +131,7 @@ export default function InterventionSimulator({ currentUHI, lat, lng, city }: Pr
                 <span className="text-sm font-medium text-[var(--foreground)]">
                   {icon} {label}
                 </span>
-                <span className="text-sm font-bold text-[var(--accent-fire)] bg-[var(--accent-fire)] bg-opacity-10 px-2 py-0.5 rounded-lg border border-[var(--accent-fire)] border-opacity-30">
+                <span className="text-sm font-bold text-white bg-[var(--accent-fire)] bg-opacity-20 px-2 py-0.5 rounded-lg border border-[var(--accent-fire)] border-opacity-40">
                   {interventions[key]} {unit}
                 </span>
               </div>
@@ -226,8 +226,8 @@ export default function InterventionSimulator({ currentUHI, lat, lng, city }: Pr
 
           {/* Cost estimate */}
           {result && (
-            <div className="bg-[var(--accent-heat)] bg-opacity-10 border border-[var(--accent-heat)] border-opacity-30 rounded-xl p-4">
-              <p className="text-xs font-medium text-[var(--accent-heat)] uppercase tracking-wide mb-2">
+            <div className="bg-[rgba(247,147,30,0.15)] border border-[rgba(247,147,30,0.3)] rounded-xl p-4">
+              <p className="text-xs font-bold text-white opacity-80 uppercase tracking-wide mb-2">
                 Estimated Implementation Cost
               </p>
               <div className="grid grid-cols-2 gap-2">
@@ -238,16 +238,16 @@ export default function InterventionSimulator({ currentUHI, lat, lng, city }: Pr
                   { label: "Green roofs", val: result.costEstimate.greenRoofs },
                 ].map(({ label, val }) => (
                   <div key={label}>
-                    <p className="text-xs text-[var(--accent-heat)]">{label}</p>
-                    <p className="text-sm font-semibold text-[var(--accent-heat)] opacity-90">
+                    <p className="text-xs text-white opacity-70">{label}</p>
+                    <p className="text-sm font-bold text-white">
                       ₹{(val / 100000).toFixed(1)}L
                     </p>
                   </div>
                 ))}
               </div>
-              <div className="mt-3 pt-3 border-t border-[var(--accent-heat)] border-opacity-30 flex justify-between">
-                <span className="text-sm font-medium text-[var(--accent-heat)]">Total Budget</span>
-                <span className="text-sm font-bold text-[var(--accent-heat)] opacity-90">
+              <div className="mt-3 pt-3 border-t border-white border-opacity-20 flex justify-between">
+                <span className="text-sm font-medium text-white opacity-80">Total Budget</span>
+                <span className="text-sm font-bold text-white">
                   ₹{(totalCost / 10000000).toFixed(2)} Cr
                 </span>
               </div>

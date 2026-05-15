@@ -77,13 +77,21 @@ function HistoricalChart({ data }: { data: AppData }) {
     plugins: {
       legend: {
         position: 'top' as const,
+        labels: { color: '#a8a8a8' }
       },
     },
     scales: {
+      x: {
+        grid: { color: 'rgba(255, 255, 255, 0.05)' },
+        ticks: { color: '#a8a8a8' }
+      },
       y: {
+        grid: { color: 'rgba(255, 255, 255, 0.05)' },
+        ticks: { color: '#a8a8a8' },
         title: {
           display: true,
-          text: 'Temperature (°C)'
+          text: 'Temperature (°C)',
+          color: '#a8a8a8'
         }
       }
     }
@@ -130,13 +138,21 @@ function ForecastChart({ data }: { data: AppData }) {
     plugins: {
       legend: {
         position: 'top' as const,
+        labels: { color: '#a8a8a8' }
       },
     },
     scales: {
+      x: {
+        grid: { display: false },
+        ticks: { color: '#a8a8a8' }
+      },
       y: {
+        grid: { color: 'rgba(255, 255, 255, 0.05)' },
+        ticks: { color: '#a8a8a8' },
         title: {
           display: true,
-          text: 'Temperature (°C)'
+          text: 'Temperature (°C)',
+          color: '#a8a8a8'
         }
       }
     }
@@ -178,14 +194,40 @@ function RiskRadarChart({ data }: { data: AppData }) {
       r: {
         min: 0,
         max: 100,
+        grid: {
+          color: 'rgba(255, 255, 255, 0.1)',
+        },
+        angleLines: {
+          color: 'rgba(255, 255, 255, 0.2)',
+        },
+        pointLabels: {
+          color: '#a8a8a8',
+          font: {
+            size: 11,
+            family: 'Archivo'
+          }
+        },
         ticks: {
-          stepSize: 25
+          stepSize: 25,
+          backdropColor: 'transparent',
+          color: '#777',
+          font: {
+            size: 10
+          }
         }
       }
     },
     plugins: {
       legend: {
         position: 'top' as const,
+        labels: {
+          color: '#a8a8a8',
+          usePointStyle: true,
+          boxWidth: 10,
+          font: {
+            size: 12
+          }
+        }
       }
     }
   };

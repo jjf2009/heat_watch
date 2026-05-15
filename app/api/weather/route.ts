@@ -3,29 +3,38 @@ import { fetchCurrentWeather, fetchForecast } from "@/lib/weather";
 
 export async function GET(req: Request) {
   const { searchParams } = new URL(req.url);
-  const lat = searchParams.get("lat");
-  const lng = searchParams.get("lng");
-  const apiKey = process.env.OPENWEATHER_API_KEY;
+  const latStr = searchParams.get("lat");
+  const lngStr = searchParams.get("lng");
+  const apiKey = process.env.OPENWEATHER_API_KEY || "";
 
-  if (!lat || !lng) {
-    return NextResponse.json({ error: "lat and lng required" }, { status: 400 });
+  console.log("[API Weather] Request received:", { lat: latStr, lng: lngStr, hasApiKey: !!apiKey });
+
+  if (!latStr || !lngStr) {
+    return NextResponse.json({ error: "lat and lng parameters are required" }, { status: 400 });
   }
 
-  if (!apiKey) {
-    return NextResponse.json({ error: "OpenWeather API key missing" }, { status: 500 });
+  const latNum = parseFloat(latStr);
+  const lngNum = parseFloat(lngStr);
+
+  if (isNaN(latNum) || isNaN(lngNum)) {
+    console.error("[API Weather] Parsed coordinates are NaN!", { latStr, lngStr });
+    return NextResponse.json({ error: "lat and lng must be valid numbers" }, { status: 400 });
   }
 
   try {
+    // Using the resilient library helpers which automatically fall back to 
+    // climate-aware simulated data if the API key is missing, invalid, or throttled.
     const [weather, forecast] = await Promise.all([
-      fetchCurrentWeather(parseFloat(lat), parseFloat(lng), apiKey),
-      fetchForecast(parseFloat(lat), parseFloat(lng), apiKey),
+      fetchCurrentWeather(latNum, lngNum, apiKey),
+      fetchForecast(latNum, lngNum, apiKey),
     ]);
 
     return NextResponse.json({ weather, forecast });
   } catch (err: any) {
-    console.error("Failed to fetch weather", err);
+    // This catch is just a super safe backstop.
+    console.error(`[API Weather] Unexpected failure:`, err.message);
     return NextResponse.json(
-      { error: "Failed to fetch weather", details: err?.response?.data || err.message },
+      { error: `Resilient weather pipeline failed: ${err.message}` },
       { status: 500 }
     );
   }

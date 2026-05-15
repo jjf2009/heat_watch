@@ -1,12 +1,14 @@
 'use client';
 
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { useAuth } from '@/lib/auth-context';
 import { useState } from 'react';
 import { Menu, X, LogOut } from 'lucide-react';
 import LoginModal from './LoginModal';
 
 export default function Navbar() {
+  const router = useRouter();
   const { user, logout } = useAuth();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [loginOpen, setLoginOpen] = useState(false);
@@ -46,23 +48,38 @@ export default function Navbar() {
             {/* Auth Section */}
             <div className="hidden md:flex items-center gap-4">
               {user ? (
-                <div className="flex items-center gap-4">
+                <div className="flex items-center gap-3">
+                  {user.photoURL ? (
+                    <img
+                      src={user.photoURL}
+                      alt={user.name}
+                      className="w-8 h-8 rounded-full object-cover border-2 border-[var(--accent-fire)]"
+                    />
+                  ) : (
+                    <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[var(--accent-fire)] to-[var(--accent-heat)] flex items-center justify-center text-white text-xs font-bold">
+                      {user.name.charAt(0).toUpperCase()}
+                    </div>
+                  )}
                   <div className="text-right">
-                    <p className="text-sm font-medium text-gray-700">{user.name}</p>
-                    <p className="text-xs text-orange-600 font-semibold uppercase">{user.plan} plan</p>
+                    <p className="text-sm font-medium text-[var(--foreground)]">{user.name}</p>
+                    <p className="text-xs text-[var(--accent-fire)] font-semibold uppercase">{user.plan} plan</p>
                   </div>
                   <button
-                    onClick={logout}
-                    className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                    onClick={async () => {
+                      await logout();
+                      router.push('/');
+                    }}
+                    className="p-2 hover:bg-white/10 rounded-lg transition-colors"
                     title="Logout"
                   >
-                    <LogOut size={20} className="text-gray-600" />
+                    <LogOut size={18} className="text-[var(--text-muted)]" />
                   </button>
                 </div>
               ) : (
                 <button
                   onClick={() => setLoginOpen(true)}
                   className="px-6 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors font-medium text-sm"
+                  suppressHydrationWarning
                 >
                   Login
                 </button>
@@ -98,8 +115,9 @@ export default function Navbar() {
               <div className="pt-4 border-t border-gray-200 mt-4">
                 {user ? (
                   <button
-                    onClick={() => {
-                      logout();
+                    onClick={async () => {
+                      await logout();
+                      router.push('/');
                       setMobileOpen(false);
                     }}
                     className="w-full text-left py-2 text-gray-600 hover:text-orange-600 text-sm font-medium flex items-center gap-2"
@@ -113,6 +131,7 @@ export default function Navbar() {
                       setMobileOpen(false);
                     }}
                     className="w-full py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors font-medium text-sm"
+                    suppressHydrationWarning
                   >
                     Login
                   </button>
