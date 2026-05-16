@@ -163,7 +163,7 @@ export default function InterventionSimulator({ currentUHI, lat, lng, city }: Pr
               <div className="flex-1 text-center">
                 <p className="text-xs text-[var(--text-muted)] mb-1">Current</p>
                 <p className="text-3xl font-bold text-[var(--accent-danger)]">
-                  +{currentUHI.toFixed(1)}°C
+                  {currentUHI > 0 ? '+' : ''}{currentUHI.toFixed(1)}°C
                 </p>
                 <p className="text-xs text-[var(--text-muted)]">vs rural baseline</p>
               </div>
@@ -174,7 +174,7 @@ export default function InterventionSimulator({ currentUHI, lat, lng, city }: Pr
                   className="text-3xl font-bold"
                   style={{ color: result ? riskColors[projectedRiskLevel as keyof typeof riskColors] : "var(--text-muted)" }}
                 >
-                  {result ? `+${result.projectedUHI.toFixed(1)}°C` : "—"}
+                  {result ? `${result.projectedUHI > 0 ? '+' : ''}${result.projectedUHI.toFixed(1)}°C` : "—"}
                 </p>
                 <p className="text-xs text-[var(--text-muted)]">
                   {result ? `${projectedRiskLevel} risk` : "adjust sliders"}

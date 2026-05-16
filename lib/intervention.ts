@@ -44,7 +44,7 @@ export function calculateIntervention(
 
   const totalCooling =
     treeCooling + reflectiveCooling + waterCooling + greenRoofCooling;
-  const projectedUHI = Math.max(0, currentUHI - totalCooling);
+  const projectedUHI = currentUHI - totalCooling;
 
   return {
     totalCooling: parseFloat(totalCooling.toFixed(2)),
