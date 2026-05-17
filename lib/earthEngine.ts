@@ -72,8 +72,8 @@ export async function getEETiles(lat: number, lng: number): Promise<EETileData> 
   if (!fs.existsSync(keyPath)) {
     console.warn("gee-key.json not found, using fallback satellite tiles.");
     return {
-      lstTileUrl: "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
-      ndviTileUrl: "https://{s}.basemaps.cartocdn.com/rastertiles/voyager_labels_under/{z}/{x}/{y}{r}.png",
+      lstTileUrl: "https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/MODIS_Terra_Land_Surface_Temp_Day/default/2023-08-01/GoogleMapsCompatible_Level7/{z}/{y}/{x}.png",
+      ndviTileUrl: "https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/MODIS_Terra_NDVI_8Day/default/2023-08-01/GoogleMapsCompatible_Level9/{z}/{y}/{x}.png",
       lstMin: 25,
       lstMax: 55,
       meanLST: 34.5,

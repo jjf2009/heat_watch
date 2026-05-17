@@ -118,16 +118,35 @@ function DashboardContent() {
       if (!loc.country && weatherData.countryCode) {
         enrichedLoc.country = weatherData.countryCode;
       }
+      if (loc.displayName) enrichedLoc.displayName = loc.displayName;
+      if (loc.state) enrichedLoc.state = loc.state;
+      if (loc.district) enrichedLoc.district = loc.district;
       setSelectedLocation(enrichedLoc);
 
       const heatZones = generateHeatZones(enrichedLoc.lat, enrichedLoc.lng, 50);
+
+      // Create a fast, optimistic ML score so the UI doesn't say "Calculating..."
+      const hTemp = weatherData.temp || 30;
+      const hHum = weatherData.humidity || 60;
+      const baseRisk = Math.min(100, Math.max(0, ((hTemp - 25) * 4) + ((hHum - 40) * 0.3) + 20));
+      const heuristicScore = {
+        riskScore: Math.round(baseRisk),
+        riskLevel: baseRisk > 75 ? "High" : baseRisk > 50 ? "Medium" : "Low",
+        uhi_intensity: parseFloat(((hTemp - 25) * 0.15).toFixed(1)),
+        factors: {
+          thermalFactor: Math.round(Math.min(100, Math.max(0, (hTemp - 20) * 3))),
+          humidityFactor: Math.round(hHum),
+          urbanFactor: 65,
+        },
+        recommendations: [],
+      };
 
       setData({
         location: enrichedLoc,
         weather: weatherData,
         historical: historicalData,
         forecast: forecastData,
-        mlScore: null,
+        mlScore: heuristicScore as any,
         heatZones,
         uhiEngine: null,
         fetchedAt: new Date().toISOString(),
@@ -216,7 +235,10 @@ function DashboardContent() {
             onAnalyze={runAnalysis}
             hasSelectedLocation={Boolean(selectedLocation)}
             selectedLocationLabel={
-              selectedLocation ? `${selectedLocation.city}, ${selectedLocation.country}` : ''
+              selectedLocation
+                ? selectedLocation.displayName ||
+                  [selectedLocation.city, selectedLocation.district, selectedLocation.state, selectedLocation.country].filter(Boolean).join(", ")
+                : ''
             }
             loading={loading}
           />

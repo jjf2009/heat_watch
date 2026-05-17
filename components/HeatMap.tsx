@@ -169,11 +169,13 @@ export default function HeatMap({ data }: Props) {
       const lstLayer = L.tileLayer(lstTileUrl, {
         opacity: 0.75,
         attribution: "© Google Earth Engine | MODIS MOD11A1",
+        maxNativeZoom: 7,
       });
 
       const ndviLayer = L.tileLayer(ndviTileUrl, {
         opacity: 0.75,
         attribution: "© Google Earth Engine | MODIS MOD13A1",
+        maxNativeZoom: 9,
       });
 
       layersRef.current.lst = lstLayer;

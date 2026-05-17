@@ -5,6 +5,9 @@ export type LocationData = {
   country: string;
   lat: number;
   lng: number;
+  state?: string;
+  district?: string;
+  displayName?: string;
 };
 
 export type WeatherData = {

@@ -2,7 +2,7 @@
 import { useState } from "react";
 import axios from "axios";
 import { LocationData } from "@/lib/types";
-import { searchCityLocation, detectLocationFromIP } from "@/lib/location";
+import { searchCityLocation, detectLocationFromIP, detectExactLocation } from "@/lib/location";
 
 type Props = {
   onLocationSelected: (loc: LocationData) => void;
@@ -31,14 +31,27 @@ export default function LocationSearch({
     }
   };
 
-  const detectFromIP = async () => {
+  const handleDetectLocation = async () => {
     setDetecting(true);
 
     try {
-      const location = await detectLocationFromIP();
-      onLocationSelected(location);
-    } catch {
-      alert("Location detection failed");
+      try {
+        const exactLocation = await detectExactLocation();
+        onLocationSelected(exactLocation);
+        return;
+      } catch (err: any) {
+        console.warn("Exact location failed, falling back to IP:", err.message);
+        // Only fallback if not a permission denied error
+        if (err.message.includes("permission denied")) {
+           throw err;
+        }
+      }
+
+      // Fallback
+      const ipLocation = await detectLocationFromIP();
+      onLocationSelected(ipLocation);
+    } catch (err: any) {
+      alert(err.message || "Location detection failed");
     } finally {
       setDetecting(false);
     }
@@ -78,7 +91,7 @@ export default function LocationSearch({
       )}
 
       <button
-        onClick={detectFromIP}
+        onClick={handleDetectLocation}
         disabled={detecting || loading}
         className="text-sm text-[var(--accent-fire)] underline underline-offset-2 hover:opacity-70 disabled:opacity-50"
         suppressHydrationWarning
